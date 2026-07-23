@@ -1,3 +1,7 @@
+# Konteks
+
+Konteks is a Sunsama-style daily planner: plan today's tasks, schedule them into daily time slots, and let unfinished tasks carry over to tomorrow automatically. It also includes weekly/monthly views, contexts & channels for organizing tasks, analytics, and a Daily Planning / Daily Shutdown / Daily Highlights ritual flow. Available in English and Bahasa Indonesia.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
