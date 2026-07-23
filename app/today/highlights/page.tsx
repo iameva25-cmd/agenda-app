@@ -6,6 +6,7 @@ import { DailyHighlightsPanel } from "@/components/daily-highlights-panel";
 import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getLocale } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,8 @@ export default async function DailyHighlightsPage() {
     redirect("/login");
   }
 
-  const todayDateStr = getTodayDateString();
+  const timeZone = await getTimeZone();
+  const todayDateStr = getTodayDateString(timeZone);
   const tasks = await getTasksForDate(session.user.id, todayDateStr);
 
   const locale = await getLocale();
@@ -24,6 +26,7 @@ export default async function DailyHighlightsPage() {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone,
   });
 
   return (

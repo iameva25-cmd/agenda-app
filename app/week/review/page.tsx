@@ -3,12 +3,13 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { DayColumn } from "@/components/day-column";
-import { getTasksForDate } from "@/lib/tasks";
+import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getDailyProductivity, getTimeByChannel } from "@/lib/analytics";
-import { formatDate, getMondayOfWeek, addDays } from "@/lib/date";
+import { formatDate, getMondayOfWeek, addDays, parseDateString } from "@/lib/date";
 import { DailyProductivityChart, TimeByChannelChart } from "@/components/weekly-charts";
 import { getT } from "@/lib/i18n/server";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,11 @@ export default async function WeeklyReviewPage() {
     redirect("/login");
   }
 
+  const timeZone = await getTimeZone();
+  const today = parseDateString(getTodayDateString(timeZone));
+
   // Default: minggu LALU (tab "Last week" aktif, sesuai referensi)
-  const lastMonday = addDays(getMondayOfWeek(new Date()), -7);
+  const lastMonday = addDays(getMondayOfWeek(today), -7);
   const weekDateStrings = Array.from({ length: 5 }, (_, i) => formatDate(addDays(lastMonday, i)));
 
   const [tasksByDate, contexts, dailyProductivity, timeByChannel] = await Promise.all([

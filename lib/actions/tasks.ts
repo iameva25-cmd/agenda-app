@@ -8,6 +8,7 @@ import { db } from "@/db";
 import { task } from "@/db/schema";
 import { getTodayDateString } from "@/lib/tasks";
 import { minutesToTime, timeToMinutes } from "@/lib/time";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export async function requireUserId() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -34,7 +35,7 @@ export async function createTask(formData: FormData) {
   const dateRaw = formData.get("date");
   const date = typeof dateRaw === "string" && dateRaw.trim() !== ""
     ? dateRaw
-    : getTodayDateString();
+    : getTodayDateString(await getTimeZone());
 
   const channelRaw = formData.get("channel");
   const channel = typeof channelRaw === "string" && channelRaw.trim() !== "" ? channelRaw : null;

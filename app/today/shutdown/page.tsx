@@ -7,6 +7,7 @@ import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getLocale } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,8 @@ export default async function DailyShutdownPage() {
     redirect("/login");
   }
 
-  const todayDateStr = getTodayDateString();
+  const timeZone = await getTimeZone();
+  const todayDateStr = getTodayDateString(timeZone);
   const [tasks, contexts] = await Promise.all([
     getTasksForDate(session.user.id, todayDateStr),
     getContextsWithChannels(),
@@ -32,6 +34,7 @@ export default async function DailyShutdownPage() {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone,
   });
 
   return (

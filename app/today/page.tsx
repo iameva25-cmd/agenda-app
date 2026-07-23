@@ -10,6 +10,7 @@ import { carryOverUnfinishedTasks, getTasksForDate, getTodayDateString } from "@
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getT } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,10 @@ export default async function TodayFocusPage() {
     redirect("/login");
   }
 
-  await carryOverUnfinishedTasks(session.user.id);
+  const timeZone = await getTimeZone();
+  await carryOverUnfinishedTasks(session.user.id, timeZone);
 
-  const todayDateStr = getTodayDateString();
+  const todayDateStr = getTodayDateString(timeZone);
   const [tasks, contexts] = await Promise.all([
     getTasksForDate(session.user.id, todayDateStr),
     getContextsWithChannels(),
@@ -38,8 +40,12 @@ export default async function TodayFocusPage() {
 
   const { t, locale } = await getT();
   const now = new Date();
-  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: "long" });
-  const dateLabel = now.toLocaleDateString(toIntlLocale(locale), { month: "long", day: "numeric" });
+  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: "long", timeZone });
+  const dateLabel = now.toLocaleDateString(toIntlLocale(locale), {
+    month: "long",
+    day: "numeric",
+    timeZone,
+  });
 
   return (
     <TodayFocusShell userName={session.user.name}>

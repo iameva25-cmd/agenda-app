@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { MonthCalendar } from "@/components/month-calendar";
-import { getTasksForDates } from "@/lib/tasks";
+import { getTasksForDates, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
-import { formatDate, getMonthGridDates } from "@/lib/date";
+import { formatDate, getMonthGridDates, parseDateString } from "@/lib/date";
+import { getTimeZone } from "@/lib/timezone-server";
 import type { task } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,11 @@ export default async function MonthPage({
     redirect("/login");
   }
 
+  const timeZone = await getTimeZone();
   const params = await searchParams;
-  const now = new Date();
-  const year = params.y ? Number(params.y) : now.getFullYear();
-  const month = params.m ? Number(params.m) - 1 : now.getMonth();
+  const today = parseDateString(getTodayDateString(timeZone));
+  const year = params.y ? Number(params.y) : today.getFullYear();
+  const month = params.m ? Number(params.m) - 1 : today.getMonth();
   const refDate = new Date(year, month, 1);
 
   const gridDates = getMonthGridDates(refDate);
@@ -41,7 +43,7 @@ export default async function MonthPage({
     tasksByDate[t.date]?.push(t);
   }
 
-  const todayDateStr = formatDate(now);
+  const todayDateStr = formatDate(today);
 
   return (
     <div className="flex h-screen overflow-hidden">

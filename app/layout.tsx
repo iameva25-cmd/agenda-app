@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TimezoneSync } from "@/components/timezone-sync";
 import { LocaleProvider } from "@/lib/i18n/context";
 import { getLocale } from "@/lib/i18n/server";
 import { translate } from "@/lib/i18n/dictionary";
@@ -40,6 +41,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <TimezoneSync />
         <LocaleProvider initialLocale={locale}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}

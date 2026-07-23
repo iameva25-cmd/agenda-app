@@ -14,6 +14,7 @@ import {
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getT } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +27,11 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  await carryOverUnfinishedTasks(session.user.id);
+  const timeZone = await getTimeZone();
+  await carryOverUnfinishedTasks(session.user.id, timeZone);
 
-  const todayDateStr = getTodayDateString();
-  const dateStrings = getUpcomingDateStrings(NUM_DAYS);
+  const todayDateStr = getTodayDateString(timeZone);
+  const dateStrings = getUpcomingDateStrings(NUM_DAYS, timeZone);
   const [tasksByDate, contexts] = await Promise.all([
     Promise.all(dateStrings.map((dateStr) => getTasksForDate(session.user.id, dateStr))),
     getContextsWithChannels(),
@@ -41,7 +43,7 @@ export default async function HomePage() {
 
   const now = new Date();
   const shortDate = now
-    .toLocaleDateString(toIntlLocale(locale), { weekday: "short", day: "numeric" })
+    .toLocaleDateString(toIntlLocale(locale), { weekday: "short", day: "numeric", timeZone })
     .toUpperCase();
 
   return (

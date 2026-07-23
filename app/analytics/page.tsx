@@ -9,6 +9,8 @@ import { addDays, formatDate, getMondayOfWeek, parseDateString } from "@/lib/dat
 import { DailyProductivityChart, TimeByChannelChart } from "@/components/weekly-charts";
 import { getT } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTodayDateString } from "@/lib/tasks";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +28,11 @@ export default async function AnalyticsPage({
     redirect("/login");
   }
 
+  const timeZone = await getTimeZone();
   const params = await searchParams;
-  const monday = params.monday ? parseDateString(params.monday) : getMondayOfWeek(new Date());
+  const monday = params.monday
+    ? parseDateString(params.monday)
+    : getMondayOfWeek(parseDateString(getTodayDateString(timeZone)));
   const weekDateStrings = Array.from({ length: 5 }, (_, i) => formatDate(addDays(monday, i)));
 
   const [dailyProductivity, timeByChannel] = await Promise.all([

@@ -4,8 +4,10 @@ import { auth } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { WeeklyObjectivesPanel } from "@/components/weekly-objectives-panel";
 import { getObjectivesForWeek } from "@/lib/actions/objectives";
-import { formatDate, getMondayOfWeek } from "@/lib/date";
+import { formatDate, getMondayOfWeek, parseDateString } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
+import { getTodayDateString } from "@/lib/tasks";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +18,9 @@ export default async function WeeklyPlanningPage() {
     redirect("/login");
   }
 
-  const weekStartDate = formatDate(getMondayOfWeek(new Date()));
+  const timeZone = await getTimeZone();
+  const today = parseDateString(getTodayDateString(timeZone));
+  const weekStartDate = formatDate(getMondayOfWeek(today));
   const objectives = await getObjectivesForWeek(weekStartDate);
   const { t } = await getT();
 

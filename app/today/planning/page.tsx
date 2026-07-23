@@ -11,6 +11,7 @@ import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getT } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,8 @@ export default async function DailyPlanningPage() {
     redirect("/login");
   }
 
-  const todayDateStr = getTodayDateString();
+  const timeZone = await getTimeZone();
+  const todayDateStr = getTodayDateString(timeZone);
   const [tasks, contexts] = await Promise.all([
     getTasksForDate(session.user.id, todayDateStr),
     getContextsWithChannels(),
@@ -37,8 +39,12 @@ export default async function DailyPlanningPage() {
 
   const { t, locale } = await getT();
   const now = new Date();
-  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: "long" });
-  const dateLabel = now.toLocaleDateString(toIntlLocale(locale), { month: "long", day: "numeric" });
+  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: "long", timeZone });
+  const dateLabel = now.toLocaleDateString(toIntlLocale(locale), {
+    month: "long",
+    day: "numeric",
+    timeZone,
+  });
 
   return (
     <div className="flex h-screen overflow-hidden">
