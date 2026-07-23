@@ -1,0 +1,163 @@
+FINAL CAPSTONE PROJECT - AGENDA PRODUKTIVITAS (Referensi: Sunsama)
+
+============================================
+1. TUJUAN PROJECT
+============================================
+Membangun web app agenda produktivitas personal untuk satu tipe user. Fokus: daily planning sederhana, time blocking, dan carry-over task otomatis - mengikuti pola Sunsama (manual, user-driven), bukan pola Motion (AI auto-scheduling).
+
+Scope sengaja dibatasi supaya bisa selesai dan di-deploy dulu, sebelum masuk ke fitur lanjutan.
+
+Target user & value proposition:
+App ini untuk orang yang percaya pada ritual/disiplin harian - bukan sekadar to-do list generik. Value proposition-nya: membantu hari jadi lebih terstruktur lewat kebiasaan planning harian yang konsisten (bukan produktivitas "kejar deadline", tapi disiplin rutin). Ini yang membedakan positioning-nya dari Motion (AI-driven) - di sini user sendiri yang sengaja meluangkan waktu menyusun harinya, mirip ritual.
+
+
+============================================
+2. BRANDING & DESAIN
+============================================
+Logo: dibuat sederhana (bisa berupa wordmark/inisial dulu di Tahap 1, logo custom penuh bisa menyusul) - ditaruh di landing page dan navbar.
+
+Palet Warna:
+- Sky Blue  -> warna utama: navbar, tombol aksi utama, elemen kalender/time block
+- Yellow    -> warna aksen: highlight task hari ini, badge status, elemen carry-over
+- Netral (putih/abu gelap) -> background & teks, menyesuaikan light/dark mode
+
+Prinsip desain: clean, banyak whitespace, rounded corner lembut, font yang mudah dibaca (contoh: Inter atau Poppins). Hindari terlalu ramai - task list dan kalender harus tetap jadi fokus utama halaman.
+
+
+============================================
+3. CARA KERJA (khusus karena Eva masih belajar coding)
+============================================
+- Dibangun section per section, bukan sekaligus semua fitur
+- Sebelum coding tiap section: dijelaskan dulu apa yang akan dibangun, kenapa, dan file mana yang kena - baru eksekusi
+- Setiap section selesai -> dites dulu (jalan di browser, cek behavior-nya) sebelum lanjut ke section berikutnya
+- Kalau ada error atau bagian yang belum jelas, itu jadi kesempatan belajar konsepnya (bukan cuma tempel kode tanpa ngerti)
+- Target: app harus jalan sempurna di tiap tahap sebelum pindah ke fitur berikutnya - bukan kejar semua fitur lalu baru dites di akhir
+
+
+============================================
+4. TECH STACK
+============================================
+- Framework : Next.js (App Router) -- asumsi, sebutkan kalau mau pakai yang lain
+- Auth      : better-auth (email/password dulu, social login opsional belakangan)
+- ORM       : Drizzle
+- Database  : PostgreSQL (bisa pakai Neon/Supabase Postgres untuk hosting gratis)
+- Styling   : Tailwind CSS (dukung light/dark mode dari awal, pakai palet Sky Blue + Yellow)
+- Deploy    : Vercel (preview deploy per fitur)
+
+Catatan: pola auth + database ini sama dengan app course yang sudah pernah dibangun (login user + database sungguhan) - bisa dicontek strukturnya.
+
+
+============================================
+5. SKEMA DATABASE (draft awal)
+============================================
+users
+- id, email, password_hash, name, created_at
+
+tasks
+- id, user_id (FK), title, description
+- date (tanggal task ditugaskan)
+- start_time, end_time (nullable - untuk time blocking)
+- estimated_minutes
+- status (todo / done)
+- category_id (FK, nullable)
+- carried_over_from (nullable, task id asal kalau ini hasil carry-over)
+- created_at, updated_at
+
+categories
+- id, user_id (FK), name, color
+
+
+============================================
+6. FITUR & URUTAN BUILD
+============================================
+TAHAP 1 - Fitur Inti (MVP)
+1. Landing page (logo, light/dark mode toggle, palet Sky Blue + Yellow)
+2. Auth: register, login, logout (better-auth)
+3. Daily Planning View - halaman utama, list task hari ini
+4. Task CRUD - tambah, edit, hapus, tandai selesai
+5. Time Blocking - drag task ke slot waktu di kalender harian
+6. Estimasi waktu per task
+7. Carry Over - task belum selesai otomatis muncul lagi di hari berikutnya
+
+Definisi selesai Tahap 1: user bisa daftar, login, bikin task untuk hari ini, drag ke jadwal, tandai selesai, dan kalau belum selesai task itu muncul lagi besok tanpa perlu diinput ulang. Tampilan sudah pakai branding & warna final, bukan placeholder.
+
+TAHAP 2 - Fitur Menengah
+8. Kategori/Label - user bikin kategori sendiri (nama + warna)
+9. Weekly View
+10. Monthly View (summary, bukan detail per task)
+11. Daily Recap - ringkasan selesai vs belum + progress percentage
+12. Notifikasi/Reminder sebelum jadwal task
+
+TAHAP 3 - Fitur Lanjutan (opsional, belakangan)
+13. Integrasi Google Calendar (sync dua arah) atau Apple calendar
+14. Analytics - jam kerja per kategori per minggu
+15. AI Suggest - saran susun ulang jadwal (baru masuk pola Motion)
+
+
+============================================
+7. DAFTAR HALAMAN (ROUTES)
+============================================
+/            -> Landing page
+/login, /register -> Auth
+/today       -> Daily Planning View (halaman utama setelah login)
+/week        -> Weekly View (tahap 2)
+/month       -> Monthly View (tahap 2)
+/settings    -> Kategori, dark/light mode, akun
+
+
+============================================
+8. PERMISSION MODEL
+============================================
+Single-user app - setiap user hanya bisa akses task miliknya sendiri (row-level check via user_id di setiap query). Tidak ada role admin di versi ini.
+
+
+============================================
+9. TESTING CHECKLIST (per fitur, dites satu-satu sebelum lanjut ke fitur berikutnya)
+============================================
+1. Landing page
+   [ ] Logo & warna Sky Blue/Yellow tampil benar di light & dark mode
+   [ ] Toggle light/dark mode berfungsi dan tersimpan preferensinya
+
+2. Auth (register/login/logout)
+   [ ] Register akun baru berhasil, langsung bisa login
+   [ ] Login redirect ke /today
+   [ ] Logout mengembalikan ke landing page, tidak bisa akses /today tanpa login
+
+3. Daily Planning View
+   [ ] Halaman /today menampilkan tanggal hari ini dengan benar
+   [ ] List task kosong tampil rapi (bukan error) kalau belum ada task
+
+4. Task CRUD
+   [ ] Tambah task baru muncul di list
+   [ ] Edit task tersimpan dan tampil sesuai perubahan
+   [ ] Hapus task hilang dari list
+   [ ] Tandai selesai mengubah status task secara visual
+
+5. Time Blocking
+   [ ] Drag task ke slot waktu tersimpan
+   [ ] Setelah refresh halaman, posisi task di kalender tidak hilang
+
+6. Estimasi Waktu
+   [ ] Input estimasi waktu tersimpan per task
+   [ ] Tampil di kartu task (misal: "30 menit")
+
+7. Carry Over
+   [ ] Task belum selesai hari ini otomatis muncul di /today besok
+   [ ] Task yang sudah selesai TIDAK ikut carry over
+   [ ] Riwayat carry-over tidak duplikat kalau dibuka berkali-kali
+
+
+============================================
+10. DEPLOYMENT PLAN
+============================================
+- Deploy preview setiap selesai 1 fitur di Tahap 1 (bukan tunggu semua fitur selesai)
+- Environment variable untuk database URL & auth secret disimpan di platform deploy, bukan di kode
+- Setelah Tahap 1 stabil -> baru lanjut Tahap 2
+
+
+============================================
+11. OUT OF SCOPE (jangan dikerjakan dulu)
+============================================
+- Kolaborasi multi-user / share task ke orang lain
+- Mobile app native
+- AI auto-scheduling (baru masuk di Tahap 3 kalau memang mau)

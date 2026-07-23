@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* --page = lapisan paling belakang (background halaman/body). --background
+     = lapisan card/popup, sengaja dibuat lebih terang (putih bersih) supaya
+     card terasa "mengambang" di atas halaman, bukan menyatu rata. */
+  --page: #fafafa; /* zinc-50 */
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --primary: #0284c7; /* sky-600 */
+  --primary-foreground: #ffffff;
+
+  --accent: #eab308; /* yellow-500 */
+  --accent-foreground: #422006;
+
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+}
+
+.dark {
+  /* Dark mode belum jadi fokus perapian ini (referensinya Sunsama light
+     theme) — page & card sengaja dibiarkan sama seperti sebelumnya supaya
+     tidak ada regresi visual di dark mode. */
+  --page: #0a0a0a;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --primary: #38bdf8; /* sky-400, brighter for dark bg */
+  --primary-foreground: #0a0a0a;
+
+  --accent: #facc15; /* yellow-400 */
+  --accent-foreground: #422006;
+
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--page);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
