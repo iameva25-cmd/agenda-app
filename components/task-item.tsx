@@ -21,6 +21,7 @@ import { TaskDetailModal } from "@/components/task-detail-modal";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import { ChannelPicker } from "@/components/channel-picker";
 import { PRIORITIES } from "@/components/priority-picker";
+import { useTranslation } from "@/lib/i18n/context";
 import type { channel, context, task } from "@/db/schema";
 
 type Task = typeof task.$inferSelect;
@@ -36,6 +37,7 @@ export function TaskItem({
   contexts: ContextWithChannels[];
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [showDetail, setShowDetail] = useState(false);
   const isDone = task.status === "done";
 
@@ -149,7 +151,7 @@ export function TaskItem({
             <span className={`transition-transform ${subtasksExpanded ? "rotate-90" : ""}`}>
               ▸
             </span>
-            {subtasks.length} subtasks
+            {t("{count} subtasks", { count: subtasks.length })}
           </button>
 
           {subtasksExpanded && (
@@ -189,7 +191,7 @@ export function TaskItem({
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityBadge.badgeClass}`}
             >
-              {priorityBadge.label}
+              {t(priorityBadge.label)}
             </span>
           )}
         </div>
@@ -220,14 +222,14 @@ export function TaskItem({
           }}
           className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          Edit
+          {t("Edit")}
         </button>
         <form onClick={(e) => e.stopPropagation()} action={deleteTask.bind(null, task.id)}>
           <button
             type="submit"
             className="text-sm text-red-600 hover:underline dark:text-red-400"
           >
-            Hapus
+            {t("Delete")}
           </button>
         </form>
       </div>

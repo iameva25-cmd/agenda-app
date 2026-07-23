@@ -1,34 +1,50 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LocaleProvider } from "@/lib/i18n/context";
+import { getLocale } from "@/lib/i18n/server";
+import { translate } from "@/lib/i18n/dictionary";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "Ritual - Agenda Produktivitas Harian",
-  description:
-    "Ritual harian untuk merencanakan hari, time blocking, dan carry-over task otomatis.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title:
+      locale === "id"
+        ? "Konteks - Semua Komitmen, Semua Konteks, Satu Tempat"
+        : "Konteks - All Commitments, All Contexts, One Place",
+    description: translate(
+      "Konteks: agenda planner, tasks, and priorities - track commitments, follow-ups, and weekly reviews in one place.",
+      locale,
+    ),
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="id"
-      className={`${inter.variable} h-full antialiased`}
+      lang={locale}
+      className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+        <LocaleProvider initialLocale={locale}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

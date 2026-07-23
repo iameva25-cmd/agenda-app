@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createObjective, toggleObjectiveDone } from "@/lib/actions/objectives";
 import { TaskCheckbox } from "@/components/task-checkbox";
+import { useTranslation } from "@/lib/i18n/context";
 import type { weeklyObjective } from "@/db/schema";
 
 type Objective = typeof weeklyObjective.$inferSelect;
@@ -16,6 +17,7 @@ export function WeeklyObjectivesPanel({
   objectives: Objective[];
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [adding, setAdding] = useState(false);
 
   return (
@@ -31,7 +33,7 @@ export function WeeklyObjectivesPanel({
           <input
             name="text"
             autoFocus
-            placeholder="Tulis objective..."
+            placeholder={t("Write an objective...")}
             required
             className="flex-1 rounded-lg border border-border/60 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-primary"
           />
@@ -39,14 +41,14 @@ export function WeeklyObjectivesPanel({
             type="submit"
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
           >
-            Simpan
+            {t("Save")}
           </button>
           <button
             type="button"
             onClick={() => setAdding(false)}
             className="rounded-lg border border-border/60 px-3 py-1.5 text-sm"
           >
-            Batal
+            {t("Cancel")}
           </button>
         </form>
       ) : (
@@ -55,12 +57,12 @@ export function WeeklyObjectivesPanel({
           onClick={() => setAdding(true)}
           className="mt-4 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted"
         >
-          + Add objective
+          {t("+ Add objective")}
         </button>
       )}
 
       {objectives.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">No objectives for this week.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("No objectives for this week.")}</p>
       ) : (
         <ul className="mt-3 flex flex-col gap-2">
           {objectives.map((obj) => (

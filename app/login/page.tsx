@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +25,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      setError(error.message ?? "Email atau password salah.");
+      setError(error.message ?? t("Invalid email or password."));
       return;
     }
 
-    router.push("/today");
+    router.push("/home");
   }
 
   return (
@@ -38,7 +40,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-2xl border border-border p-8"
       >
-        <h1 className="text-center text-2xl font-semibold">Masuk</h1>
+        <h1 className="text-center text-2xl font-semibold">{t("Log In")}</h1>
 
         {error && (
           <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
@@ -48,7 +50,7 @@ export default function LoginPage() {
 
         <div className="space-y-1">
           <label htmlFor="email" className="text-sm font-medium">
-            Email
+            {t("Email")}
           </label>
           <input
             id="email"
@@ -62,7 +64,7 @@ export default function LoginPage() {
 
         <div className="space-y-1">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            {t("Password")}
           </label>
           <input
             id="password"
@@ -79,13 +81,13 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {loading ? "Memproses..." : "Masuk"}
+          {loading ? t("Processing...") : t("Log In")}
         </button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Belum punya akun?{" "}
+          {t("Don't have an account?")}{" "}
           <Link href="/register" className="font-medium text-primary">
-            Daftar
+            {t("Sign up")}
           </Link>
         </p>
       </form>

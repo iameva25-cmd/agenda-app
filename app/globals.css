@@ -6,38 +6,35 @@
   /* --page = lapisan paling belakang (background halaman/body). --background
      = lapisan card/popup, sengaja dibuat lebih terang (putih bersih) supaya
      card terasa "mengambang" di atas halaman, bukan menyatu rata. */
-  --page: #fafafa; /* zinc-50 */
+  --page: #f8fafc; /* slate-50 - Konteks brand neutral */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a; /* slate-900 - Konteks brand neutral */
 
-  --primary: #0284c7; /* sky-600 */
+  --primary: #0d9488; /* Konteks brand primer (teal) */
   --primary-foreground: #ffffff;
 
-  --accent: #eab308; /* yellow-500 */
-  --accent-foreground: #422006;
+  --accent: #f59e0b; /* Konteks brand semantik (oranye) */
+  --accent-foreground: #0f172a;
 
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --border: #e4e4e7;
+  --muted: #e2e8f0; /* slate-200 - Konteks brand neutral */
+  --muted-foreground: #64748b; /* slate-500 - Konteks brand neutral */
+  --border: #e2e8f0;
 }
 
 .dark {
-  /* Dark mode belum jadi fokus perapian ini (referensinya Sunsama light
-     theme) — page & card sengaja dibiarkan sama seperti sebelumnya supaya
-     tidak ada regresi visual di dark mode. */
-  --page: #0a0a0a;
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --page: #0f172a; /* slate-900 - Konteks brand neutral */
+  --background: #0f172a;
+  --foreground: #f8fafc;
 
-  --primary: #38bdf8; /* sky-400, brighter for dark bg */
-  --primary-foreground: #0a0a0a;
+  --primary: #14b8a6; /* teal lebih terang, biar kontras di background gelap */
+  --primary-foreground: #0f172a;
 
-  --accent: #facc15; /* yellow-400 */
-  --accent-foreground: #422006;
+  --accent: #f59e0b;
+  --accent-foreground: #0f172a;
 
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
+  --muted: #334155; /* slate-700 - Konteks brand neutral */
+  --muted-foreground: #64748b;
+  --border: #334155;
 }
 
 @theme inline {
@@ -51,7 +48,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-poppins);
 }
 
 body {

@@ -1,26 +1,25 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { TodayFocusShell } from "@/components/today-focus-shell";
+import { SidebarNav } from "@/components/sidebar-nav";
 import { TaskList } from "@/components/task-list";
 import { AddTaskPopup } from "@/components/add-task-popup";
 import { DayCalendar } from "@/components/day-calendar";
 import { TaskReminders } from "@/components/task-reminders";
-import { carryOverUnfinishedTasks, getTasksForDate, getTodayDateString } from "@/lib/tasks";
+import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getT } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
 
 export const dynamic = "force-dynamic";
 
-export default async function TodayFocusPage() {
+export default async function DailyPlanningPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
     redirect("/login");
   }
-
-  await carryOverUnfinishedTasks(session.user.id);
 
   const todayDateStr = getTodayDateString();
   const [tasks, contexts] = await Promise.all([
@@ -42,7 +41,61 @@ export default async function TodayFocusPage() {
   const dateLabel = now.toLocaleDateString(toIntlLocale(locale), { month: "long", day: "numeric" });
 
   return (
-    <TodayFocusShell userName={session.user.name}>
+    <div className="flex h-screen overflow-hidden">
+      <SidebarNav userName={session.user.name} current="today-planning" />
+
+      <div className="w-[280px] shrink-0 overflow-y-auto border-r border-border/60 px-6 py-10">
+        <h1 className="text-xl font-bold">{t("What do you want to get done today?")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("Add tasks you want to work on today.")}
+        </p>
+
+        <div className="mt-6 rounded-2xl border border-border/60 p-4 shadow-sm">
+          <p className="text-sm font-semibold">{t("Shutdown time")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("What time would you like to wrap up work by?")}
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              type="time"
+              defaultValue="21:00"
+              disabled
+              title={t("Coming soon")}
+              className="rounded-lg border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/70"
+            />
+            <button
+              type="button"
+              disabled
+              title={t("Coming soon (Google Calendar sync is on hold)")}
+              className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/50"
+            >
+              📅 {t("Add to calendar")}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 flex gap-2">
+          <button
+            type="button"
+            disabled
+            title={t("No previous step")}
+            className="flex-1 rounded-lg border border-border/60 px-3 py-2 text-sm text-muted-foreground/40"
+          >
+            ←
+          </button>
+          <Link
+            href="/today/shutdown"
+            className="flex-1 rounded-lg bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            {t("Next")}
+          </Link>
+        </div>
+
+        <p className="mt-8 text-sm text-muted-foreground">
+          {t("What are the most high-impact things you could do today?")}
+        </p>
+      </div>
+
       <div className="w-[340px] shrink-0 overflow-y-auto border-r border-border/60 px-5 py-6">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-muted px-3 py-1.5 text-sm font-medium">
@@ -74,6 +127,6 @@ export default async function TodayFocusPage() {
         <TaskReminders tasks={scheduledTasks} />
         <DayCalendar tasks={scheduledTasks} contexts={contexts} />
       </div>
-    </TodayFocusShell>
+    </div>
   );
 }

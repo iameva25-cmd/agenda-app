@@ -5,6 +5,7 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { WeeklyObjectivesPanel } from "@/components/weekly-objectives-panel";
 import { getObjectivesForWeek } from "@/lib/actions/objectives";
 import { formatDate, getMondayOfWeek } from "@/lib/date";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function WeeklyPlanningPage() {
 
   const weekStartDate = formatDate(getMondayOfWeek(new Date()));
   const objectives = await getObjectivesForWeek(weekStartDate);
+  const { t } = await getT();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -25,31 +27,31 @@ export default async function WeeklyPlanningPage() {
       <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-muted px-3 py-1.5 text-sm font-medium">
-            📅 This week
+            📅 {t("This week")}
           </span>
           <button
             type="button"
             disabled
-            title="Segera hadir"
+            title={t("Coming soon")}
             className="rounded-full border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/70"
           >
-            ☰ Filter
+            ☰ {t("Filter")}
           </button>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-2">
           {/* Kolom kiri: label ritual + navigasi antar-step */}
           <div>
-            <h1 className="text-lg font-bold">Weekly objectives</h1>
+            <h1 className="text-lg font-bold">{t("Weekly objectives")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Set your objectives for the week.
+              {t("Set your objectives for the week.")}
             </p>
 
             <div className="mt-10 flex gap-2">
               <button
                 type="button"
                 disabled
-                title="Segera hadir"
+                title={t("Coming soon")}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 text-muted-foreground/70"
               >
                 ←
@@ -57,19 +59,19 @@ export default async function WeeklyPlanningPage() {
               <button
                 type="button"
                 disabled
-                title="Segera hadir"
+                title={t("Coming soon")}
                 className="rounded-lg border border-border/60 px-6 py-2 text-sm font-medium text-muted-foreground/70"
               >
-                Next
+                {t("Next")}
               </button>
             </div>
           </div>
 
           {/* Kolom kanan: daftar objective minggu ini */}
           <div>
-            <h2 className="text-lg font-bold">This week</h2>
+            <h2 className="text-lg font-bold">{t("This week")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Your objectives for this week
+              {t("Your objectives for this week")}
             </p>
 
             <WeeklyObjectivesPanel weekStartDate={weekStartDate} objectives={objectives} />

@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, YAxis } from "recharts";
 import { CATEGORY_COLOR_HEX } from "@/lib/category-colors";
+import { useTranslation } from "@/lib/i18n/context";
 
 const UNKNOWN_HEX = "#a1a1aa";
 
@@ -42,6 +43,7 @@ export function TimeByChannelChart({
 }: {
   data: { label: string; color: string; totalSeconds: number }[];
 }) {
+  const { t } = useTranslation();
   const total = data.reduce((sum, d) => sum + d.totalSeconds, 0);
   const percentages =
     total === 0 ? [] : roundPercentagesTo100(data.map((d) => d.totalSeconds / total));
@@ -52,7 +54,7 @@ export function TimeByChannelChart({
         <div className="h-24 w-24 rounded-full border-[10px] border-muted" />
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="h-2 w-2 rounded-full bg-muted" />
-          unknown
+          {t("unknown")}
         </p>
       </div>
     );
@@ -85,7 +87,7 @@ export function TimeByChannelChart({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: CATEGORY_COLOR_HEX[d.color] ?? UNKNOWN_HEX }}
             />
-            {d.label} ({percentages[i]}%)
+            {d.label === "unknown" ? t("unknown") : d.label} ({percentages[i]}%)
           </p>
         ))}
       </div>

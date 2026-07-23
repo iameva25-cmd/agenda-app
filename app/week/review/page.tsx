@@ -8,6 +8,7 @@ import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getDailyProductivity, getTimeByChannel } from "@/lib/analytics";
 import { formatDate, getMondayOfWeek, addDays } from "@/lib/date";
 import { DailyProductivityChart, TimeByChannelChart } from "@/components/weekly-charts";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,8 @@ export default async function WeeklyReviewPage() {
     hours: Math.round((d.totalSeconds / 3600) * 100) / 100,
   }));
 
+  const { t } = await getT();
+
   return (
     <div className="flex h-screen overflow-hidden">
       <SidebarNav userName={session.user.name} current="week-review" />
@@ -43,39 +46,39 @@ export default async function WeeklyReviewPage() {
       <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-muted px-3 py-1.5 text-sm font-medium">
-            📅 Last week
+            📅 {t("Last week")}
           </span>
           <button
             type="button"
             disabled
-            title="Segera hadir"
+            title={t("Coming soon")}
             className="rounded-full border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/70"
           >
-            ☰ Filter
+            ☰ {t("Filter")}
           </button>
         </div>
 
         <div className="mt-10 flex gap-10 overflow-x-auto">
           {/* Kolom kiri: dashboard ringkasan, dari actualSeconds task minggu ini */}
           <div className="w-[260px] shrink-0">
-            <h1 className="text-lg font-bold">What got done</h1>
+            <h1 className="text-lg font-bold">{t("What got done")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              How you spent your time this week in{" "}
-              <span className="underline">total</span>
+              {t("How you spent your time this week in")}{" "}
+              <span className="underline">{t("total")}</span>
             </p>
 
-            <h3 className="mt-8 text-sm font-semibold">Daily productivity</h3>
+            <h3 className="mt-8 text-sm font-semibold">{t("Daily productivity")}</h3>
             <span className="text-[10px] text-muted-foreground">6 hr</span>
             <DailyProductivityChart data={productivityChartData} />
             <div className="flex gap-3 text-xs text-muted-foreground">
               {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
                 <span key={d} className="flex-1 text-center">
-                  {d}
+                  {t(d)}
                 </span>
               ))}
             </div>
 
-            <h3 className="mt-8 text-sm font-semibold">How you spent your time</h3>
+            <h3 className="mt-8 text-sm font-semibold">{t("How you spent your time")}</h3>
             <div className="mt-3">
               <TimeByChannelChart data={timeByChannel} />
             </div>
@@ -84,7 +87,7 @@ export default async function WeeklyReviewPage() {
               <button
                 type="button"
                 disabled
-                title="Segera hadir"
+                title={t("Coming soon")}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 text-muted-foreground/70"
               >
                 ←
@@ -92,10 +95,10 @@ export default async function WeeklyReviewPage() {
               <button
                 type="button"
                 disabled
-                title="Segera hadir"
+                title={t("Coming soon")}
                 className="rounded-lg border border-border/60 px-6 py-2 text-sm font-medium text-muted-foreground/70"
               >
-                Next
+                {t("Next")}
               </button>
             </div>
           </div>

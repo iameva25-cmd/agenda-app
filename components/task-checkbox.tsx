@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslation } from "@/lib/i18n/context";
+
 const SIZE_CLASSES = {
   sm: { box: "h-4 w-4", icon: "h-2.5 w-2.5" },
   md: { box: "h-5 w-5", icon: "h-3 w-3" },
@@ -16,6 +20,7 @@ export function TaskCheckbox({
   className?: string;
 }) {
   const { box, icon } = SIZE_CLASSES[size];
+  const { t } = useTranslation();
 
   return (
     <span className={`relative flex shrink-0 items-center justify-center ${box} ${className}`}>
@@ -23,7 +28,7 @@ export function TaskCheckbox({
         type="checkbox"
         defaultChecked={checked}
         onChange={onToggle}
-        aria-label="Tandai selesai"
+        aria-label={t("Mark as done")}
         className={`peer ${box} shrink-0 cursor-pointer appearance-none rounded-full border-2 border-border bg-background transition-colors checked:border-primary checked:bg-primary`}
       />
       <svg

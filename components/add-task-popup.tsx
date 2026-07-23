@@ -16,6 +16,8 @@ import {
 import { createTask } from "@/lib/actions/tasks";
 import { formatDate, addDays } from "@/lib/date";
 import { PriorityPicker } from "@/components/priority-picker";
+import { useTranslation } from "@/lib/i18n/context";
+import { toIntlLocale } from "@/lib/i18n/dates";
 
 type Dropdown = "date" | "time" | "channel" | null;
 
@@ -81,6 +83,7 @@ function isSameDay(a: Date, b: Date) {
 }
 
 export function AddTaskPopup({ dateStr }: { dateStr: string }) {
+  const { t, locale } = useTranslation();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -168,9 +171,9 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
   }, [open, activeDropdown]);
 
   const dateLabel = (() => {
-    if (selectedDate === formatDate(new Date())) return "Today";
+    if (selectedDate === formatDate(new Date())) return t("Today");
     const [, month, day] = selectedDate.split("-").map(Number);
-    return new Date(2000, month - 1, day).toLocaleDateString("en-US", {
+    return new Date(2000, month - 1, day).toLocaleDateString(toIntlLocale(locale), {
       month: "short",
       day: "numeric",
     });
@@ -198,7 +201,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
         className="mt-4 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground/70 transition-colors hover:bg-muted"
       >
         <Plus className="h-4 w-4" />
-        Add task
+        {t("Add task")}
       </button>
 
       {open && position && (
@@ -218,7 +221,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
             }}
           >
             <span className="ml-3 inline-block rounded-t-md border border-b-0 border-border/60 bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
-              Add task
+              {t("Add task")}
             </span>
             <div className="w-[380px] rounded-lg rounded-tl-none border border-border/60 bg-background p-3 shadow-2xl ring-1 ring-black/5">
               <form
@@ -235,7 +238,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                   required
                   autoFocus
                   rows={2}
-                  placeholder="Task description..."
+                  placeholder={t("Task description...")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -249,7 +252,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                   <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                     TIP
                   </span>
-                  <span>Paste a URL</span>
+                  <span>{t("Paste a URL")}</span>
                 </div>
 
                 <div className="mt-1 flex items-center gap-3 border-t border-border/50 pt-2 text-xs text-muted-foreground">
@@ -269,7 +272,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                     className="flex items-center gap-1 hover:text-foreground"
                   >
                     <Clock className="h-3.5 w-3.5" />
-                    {durationLabel}
+                    {durationLabel === "--:--" ? durationLabel : t(durationLabel)}
                   </button>
                   <button
                     ref={channelButtonRef}
@@ -278,7 +281,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                     className="flex items-center gap-1 hover:text-foreground"
                   >
                     <Hash className="h-3.5 w-3.5" />
-                    {channel ?? "channel"}
+                    {channel ?? t("channel")}
                   </button>
                   <button type="button" className="hover:text-foreground">
                     <Target className="h-3.5 w-3.5" />
@@ -305,7 +308,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
               onClick={(e) => e.stopPropagation()}
             >
               <p className="px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
-                Someday
+                {t("Someday")}
               </p>
               <ul className="mt-1 flex flex-col">
                 {SOMEDAY_OPTIONS.map((opt) => (
@@ -316,7 +319,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                       className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs hover:bg-muted"
                     >
                       <span className={`h-2.5 w-2.5 rounded-full ${opt.dot}`} />
-                      {opt.label}
+                      {t(opt.label)}
                     </button>
                   </li>
                 ))}
@@ -324,32 +327,32 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                   <button
                     type="button"
                     disabled
-                    title="Belum didukung — task di app ini selalu perlu tanggal pasti"
+                    title={t("Not supported — tasks in this app always need a fixed date")}
                     className="flex w-full cursor-not-allowed items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-muted-foreground/40"
                   >
                     <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-bold text-white">
                       S
                     </span>
-                    someday
+                    {t("someday")}
                   </button>
                 </li>
                 <li>
                   <button
                     type="button"
                     disabled
-                    title="Belum didukung — task di app ini selalu perlu tanggal pasti"
+                    title={t("Not supported — tasks in this app always need a fixed date")}
                     className="flex w-full cursor-not-allowed items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-muted-foreground/40"
                   >
                     <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-bold text-white">
                       N
                     </span>
-                    never
+                    {t("never")}
                   </button>
                 </li>
               </ul>
 
               <p className="mt-2 border-t border-border/50 px-1 pt-2 text-[11px] font-semibold uppercase text-muted-foreground/70">
-                Schedule exact start date
+                {t("Schedule exact start date")}
               </p>
               <div className="mt-1 flex items-center justify-between px-1">
                 <button
@@ -364,7 +367,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <span className="text-xs font-medium">
-                  {calendarMonth.toLocaleDateString("en-US", {
+                  {calendarMonth.toLocaleDateString(toIntlLocale(locale), {
                     month: "long",
                     year: "numeric",
                   })}
@@ -421,7 +424,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
               onClick={(e) => e.stopPropagation()}
             >
               <label className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                Planned:
+                {t("Planned:")}
                 <input
                   type="time"
                   value={plannedTime}
@@ -440,7 +443,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                       durationMinutes === d.minutes ? "font-semibold text-primary" : ""
                     }`}
                   >
-                    {d.label}
+                    {t(d.label)}
                     {durationMinutes === d.minutes && <Check className="h-3.5 w-3.5" />}
                   </button>
                 ))}
@@ -454,12 +457,14 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
               style={{ top: dropdownPos.top, left: dropdownPos.left }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="px-1 text-xs font-medium text-muted-foreground">Assign to channel</p>
+              <p className="px-1 text-xs font-medium text-muted-foreground">
+                {t("Assign to channel")}
+              </p>
               <input
                 autoFocus
                 value={channelSearch}
                 onChange={(e) => setChannelSearch(e.target.value)}
-                placeholder="Search..."
+                placeholder={t("Search...")}
                 className="mt-1 w-full rounded border border-border/60 bg-transparent px-2 py-1 text-xs outline-none focus:border-primary"
               />
 
@@ -472,7 +477,7 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                   >
                     <span className="flex items-center gap-1.5">
                       <Hash className="h-3 w-3" />
-                      Unassigned
+                      {t("Unassigned")}
                     </span>
                     {channel === null && <Check className="h-3.5 w-3.5" />}
                   </button>
@@ -515,10 +520,10 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
 
               <button
                 type="button"
-                title="Belum tersedia — pengaturan channel belum dibuat"
+                title={t("Not available yet — channel settings haven't been set up")}
                 className="mt-2 w-full border-t border-border/50 pt-2 text-left text-xs text-primary hover:underline"
               >
-                Manage channels
+                {t("Manage channels")}
               </button>
             </div>
           )}

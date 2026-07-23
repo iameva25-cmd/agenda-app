@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,11 +26,11 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (error) {
-      setError(error.message ?? "Gagal mendaftar. Coba lagi.");
+      setError(error.message ?? t("Failed to sign up. Please try again."));
       return;
     }
 
-    router.push("/today");
+    router.push("/home");
   }
 
   return (
@@ -39,7 +41,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-2xl border border-border p-8"
       >
-        <h1 className="text-center text-2xl font-semibold">Buat Akun</h1>
+        <h1 className="text-center text-2xl font-semibold">{t("Create Account")}</h1>
 
         {error && (
           <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
@@ -49,7 +51,7 @@ export default function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="name" className="text-sm font-medium">
-            Nama
+            {t("Name")}
           </label>
           <input
             id="name"
@@ -63,7 +65,7 @@ export default function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="email" className="text-sm font-medium">
-            Email
+            {t("Email")}
           </label>
           <input
             id="email"
@@ -77,7 +79,7 @@ export default function RegisterPage() {
 
         <div className="space-y-1">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            {t("Password")}
           </label>
           <input
             id="password"
@@ -95,13 +97,13 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {loading ? "Memproses..." : "Daftar"}
+          {loading ? t("Processing...") : t("Sign Up")}
         </button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Sudah punya akun?{" "}
+          {t("Already have an account?")}{" "}
           <Link href="/login" className="font-medium text-primary">
-            Masuk
+            {t("Log in")}
           </Link>
         </p>
       </form>

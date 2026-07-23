@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Flag, Check } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 export const PRIORITIES = [
   {
@@ -44,6 +45,7 @@ export function PriorityPicker({
   onChange: (value: string) => void;
   showLabel?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -79,7 +81,7 @@ export function PriorityPicker({
         }
       >
         <Flag className={`h-3.5 w-3.5 ${selected.flagColor}`} />
-        {showLabel && <span>{selected.label}</span>}
+        {showLabel && <span>{t(selected.label)}</span>}
       </button>
 
       {open && position && (
@@ -96,7 +98,7 @@ export function PriorityPicker({
             onClick={(e) => e.stopPropagation()}
           >
             <p className="px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
-              Daily Priority
+              {t("Daily Priority")}
             </p>
             <ul className="mt-1 flex flex-col">
               {PRIORITIES.map((p) => (
@@ -111,7 +113,7 @@ export function PriorityPicker({
                   >
                     <span className="flex items-center gap-1.5">
                       <Flag className={`h-3.5 w-3.5 ${p.flagColor}`} />
-                      {p.label}
+                      {t(p.label)}
                     </span>
                     {value === p.value && <Check className="h-3.5 w-3.5" />}
                   </button>

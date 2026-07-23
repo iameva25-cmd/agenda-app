@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Hash, Lock, Check } from "lucide-react";
 import { CATEGORY_COLOR_CLASSES, resolveChannelColor } from "@/lib/category-colors";
+import { useTranslation } from "@/lib/i18n/context";
 import type { channel, context } from "@/db/schema";
 
 type Channel = typeof channel.$inferSelect;
@@ -24,6 +25,7 @@ export function ChannelPicker({
   onSelectChannel: (channelId: string | null) => void;
   onSelectContext: (contextId: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -78,7 +80,7 @@ export function ChannelPicker({
       ? `#${selectedContext.name}`
       : fallbackLabel
         ? `#${fallbackLabel}`
-        : "+ kategori";
+        : t("+ category");
 
   const triggerColorClass = selectedChannel
     ? (CATEGORY_COLOR_CLASSES[selectedChannel.resolvedColor]?.text ?? "text-muted-foreground")
@@ -112,12 +114,14 @@ export function ChannelPicker({
             style={{ top: position.top, left: position.left }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="px-1 text-xs font-medium text-muted-foreground">Assign to channel:</p>
+            <p className="px-1 text-xs font-medium text-muted-foreground">
+              {t("Assign to channel:")}
+            </p>
             <input
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
+              placeholder={t("Search...")}
               className="mt-1 w-full rounded border border-border/60 bg-transparent px-2 py-1 text-xs outline-none focus:border-primary"
             />
 
@@ -133,7 +137,7 @@ export function ChannelPicker({
                 >
                   <span className="flex items-center gap-1.5">
                     <Hash className="h-3 w-3" />
-                    Unassigned
+                    {t("Unassigned")}
                   </span>
                   {!channelId && !contextId && <Check className="h-3.5 w-3.5" />}
                 </button>
@@ -192,7 +196,7 @@ export function ChannelPicker({
               onClick={() => setOpen(false)}
               className="mt-2 block w-full border-t border-border/50 pt-2 text-left text-xs text-primary hover:underline"
             >
-              Manage channels
+              {t("Manage channels")}
             </Link>
           </div>
         </div>

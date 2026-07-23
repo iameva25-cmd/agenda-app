@@ -23,6 +23,7 @@ import {
 import { minutesToTime, timeToMinutes } from "@/lib/time";
 import { TaskDetailModal } from "@/components/task-detail-modal";
 import { TaskCheckbox } from "@/components/task-checkbox";
+import { useTranslation } from "@/lib/i18n/context";
 
 type Task = typeof task.$inferSelect;
 type Channel = typeof channel.$inferSelect;
@@ -50,6 +51,7 @@ export function DayCalendar({
   contexts: ContextWithChannels[];
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
   const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
   const slots = buildSlots();
@@ -160,28 +162,28 @@ export function DayCalendar({
           );
         })}
 
-        {tasks.map((t) => {
-          if (!t.startTime) return null;
-          const startMinutes = timeToMinutes(t.startTime);
-          const durationMinutes = t.endTime
-            ? timeToMinutes(t.endTime) - startMinutes
-            : (t.estimatedMinutes ?? SLOT_MINUTES);
+        {tasks.map((scheduledTask) => {
+          if (!scheduledTask.startTime) return null;
+          const startMinutes = timeToMinutes(scheduledTask.startTime);
+          const durationMinutes = scheduledTask.endTime
+            ? timeToMinutes(scheduledTask.endTime) - startMinutes
+            : (scheduledTask.estimatedMinutes ?? SLOT_MINUTES);
           const top = ((startMinutes - gridStartMinutes) / SLOT_MINUTES) * SLOT_HEIGHT;
           const height = Math.max(
             (durationMinutes / SLOT_MINUTES) * SLOT_HEIGHT,
             SLOT_HEIGHT / 2,
           );
-          const isDone = t.status === "done";
-          const priorityFlag = CARD_FLAG_PRIORITIES.includes(t.priority)
-            ? PRIORITIES.find((p) => p.value === t.priority)
+          const isDone = scheduledTask.status === "done";
+          const priorityFlag = CARD_FLAG_PRIORITIES.includes(scheduledTask.priority)
+            ? PRIORITIES.find((p) => p.value === scheduledTask.priority)
             : null;
 
           return (
             <div
-              key={t.id}
+              key={scheduledTask.id}
               draggable
               onDragStart={(e) => {
-                e.dataTransfer.setData("text/plain", t.id);
+                e.dataTransfer.setData("text/plain", scheduledTask.id);
                 e.dataTransfer.effectAllowed = "move";
               }}
               className={`absolute left-14 right-2 flex cursor-grab flex-col justify-between overflow-hidden rounded-lg px-2 py-1 text-xs shadow-sm active:cursor-grabbing ${
@@ -195,7 +197,7 @@ export function DayCalendar({
                 <div className="flex items-start gap-1.5">
                   <TaskCheckbox
                     checked={isDone}
-                    onToggle={() => toggleTaskStatus(t.id, t.status)}
+                    onToggle={() => toggleTaskStatus(scheduledTask.id, scheduledTask.status)}
                     size="sm"
                     className="mt-0.5"
                   />
@@ -204,18 +206,18 @@ export function DayCalendar({
                   )}
                   <button
                     type="button"
-                    onClick={() => setDetailTaskId(t.id)}
+                    onClick={() => setDetailTaskId(scheduledTask.id)}
                     className={`text-left font-medium leading-tight hover:underline ${
                       isDone ? "line-through" : ""
                     }`}
                   >
-                    {t.title}
+                    {scheduledTask.title}
                   </button>
                 </div>
-                <form action={unscheduleTask.bind(null, t.id)}>
+                <form action={unscheduleTask.bind(null, scheduledTask.id)}>
                   <button
                     type="submit"
-                    title="Lepas dari jadwal"
+                    title={t("Unschedule")}
                     className="shrink-0 rounded-full bg-black/10 px-1.5 text-[10px] leading-4 hover:bg-black/20"
                   >
                     ✕
@@ -223,8 +225,8 @@ export function DayCalendar({
                 </form>
               </div>
               <span className="opacity-80">
-                {t.startTime}
-                {t.endTime ? ` - ${t.endTime}` : ""}
+                {scheduledTask.startTime}
+                {scheduledTask.endTime ? ` - ${scheduledTask.endTime}` : ""}
               </span>
             </div>
           );

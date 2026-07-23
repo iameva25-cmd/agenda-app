@@ -205,6 +205,41 @@ export async function pauseTimer(id: string) {
   revalidatePath("/today");
 }
 
+const MAX_HIGHLIGHTS_PER_DAY = 3;
+
+export async function toggleTaskHighlight(id: string, currentIsHighlight: boolean) {
+  const userId = await requireUserId();
+
+  if (!currentIsHighlight) {
+    const [existing] = await db
+      .select({ date: task.date })
+      .from(task)
+      .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+    if (!existing) return;
+
+    const highlightsToday = await db
+      .select({ id: task.id })
+      .from(task)
+      .where(
+        and(
+          eq(task.userId, userId),
+          eq(task.date, existing.date),
+          eq(task.isHighlight, true),
+        ),
+      );
+
+    if (highlightsToday.length >= MAX_HIGHLIGHTS_PER_DAY) return;
+  }
+
+  await db
+    .update(task)
+    .set({ isHighlight: !currentIsHighlight })
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  revalidatePath("/today");
+}
+
 export async function unscheduleTask(id: string) {
   const userId = await requireUserId();
 

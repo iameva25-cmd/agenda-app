@@ -4,6 +4,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { ChannelsManager } from "@/components/channels-manager";
 import { getContextsWithChannels } from "@/lib/actions/channels";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,19 +21,22 @@ export default async function ChannelsSettingsPage() {
     if (b.name === "uncategorized") return -1;
     return 0;
   });
+  const { t } = await getT();
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <Link
-        href="/today"
+        href="/home"
         className="text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        ← Return to Today
+        {t("← Return to Home")}
       </Link>
 
-      <h1 className="mt-4 text-2xl font-bold">Contexts & Channels</h1>
+      <h1 className="mt-4 text-2xl font-bold">{t("Contexts & Channels")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Atur context (kategori induk) dan channel (sub-kategori) untuk mengelompokkan task kamu.
+        {t(
+          "Manage contexts (parent categories) and channels (sub-categories) to group your tasks.",
+        )}
       </p>
 
       <div className="mt-6">

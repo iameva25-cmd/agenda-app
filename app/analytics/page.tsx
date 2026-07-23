@@ -7,6 +7,8 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { getDailyProductivity, getTimeByChannel } from "@/lib/analytics";
 import { addDays, formatDate, getMondayOfWeek, parseDateString } from "@/lib/date";
 import { DailyProductivityChart, TimeByChannelChart } from "@/components/weekly-charts";
+import { getT } from "@/lib/i18n/server";
+import { toIntlLocale } from "@/lib/i18n/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -38,12 +40,14 @@ export default async function AnalyticsPage({
     hours: Math.round((d.totalSeconds / 3600) * 100) / 100,
   }));
 
+  const { t, locale } = await getT();
+  const intlLocale = toIntlLocale(locale);
   const prevMondayStr = formatDate(addDays(monday, -7));
   const nextMondayStr = formatDate(addDays(monday, 7));
-  const rangeLabel = `${parseDateString(weekDateStrings[0]).toLocaleDateString("id-ID", {
+  const rangeLabel = `${parseDateString(weekDateStrings[0]).toLocaleDateString(intlLocale, {
     day: "numeric",
     month: "short",
-  })} - ${parseDateString(weekDateStrings[4]).toLocaleDateString("id-ID", {
+  })} - ${parseDateString(weekDateStrings[4]).toLocaleDateString(intlLocale, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -55,9 +59,9 @@ export default async function AnalyticsPage({
 
       <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
         <div className="mx-auto max-w-md">
-          <h1 className="text-xl font-bold">Analytics</h1>
+          <h1 className="text-xl font-bold">{t("Analytics")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Jam kerja per kategori, per minggu.
+            {t("Hours worked per category, per week.")}
           </p>
 
           <div className="mt-4 flex items-center gap-3">
@@ -76,18 +80,18 @@ export default async function AnalyticsPage({
             </Link>
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold">Jam kerja per hari</h3>
+          <h3 className="mt-8 text-sm font-semibold">{t("Hours worked per day")}</h3>
           <span className="text-[10px] text-muted-foreground">6 hr</span>
           <DailyProductivityChart data={productivityChartData} />
           <div className="flex gap-3 text-xs text-muted-foreground">
             {DAY_SHORT_LABELS.map((d) => (
               <span key={d} className="flex-1 text-center">
-                {d}
+                {t(d)}
               </span>
             ))}
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold">Jam kerja per kategori</h3>
+          <h3 className="mt-8 text-sm font-semibold">{t("Hours worked per category")}</h3>
           <div className="mt-3">
             <TimeByChannelChart data={timeByChannel} />
           </div>

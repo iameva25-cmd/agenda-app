@@ -104,6 +104,7 @@ export const task = pgTable(
     priority: text("priority").notNull().default("normal"),
     actualSeconds: integer("actual_seconds").notNull().default(0),
     timerStartedAt: timestamp("timer_started_at"),
+    isHighlight: boolean("is_highlight").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

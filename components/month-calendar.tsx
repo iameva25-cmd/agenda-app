@@ -6,28 +6,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { parseDateString } from "@/lib/date";
 import { TaskItem } from "@/components/task-item";
 import { AddTaskPopup } from "@/components/add-task-popup";
+import { useTranslation } from "@/lib/i18n/context";
+import { toIntlLocale } from "@/lib/i18n/dates";
 import type { channel, context, task } from "@/db/schema";
 
 type Task = typeof task.$inferSelect;
 type Channel = typeof channel.$inferSelect;
 type ContextWithChannels = typeof context.$inferSelect & { channels: Channel[] };
 
-const WEEKDAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-
-const MONTH_LABELS = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
+const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function MonthCalendar({
   year,
@@ -44,6 +31,8 @@ export function MonthCalendar({
   contexts: ContextWithChannels[];
   todayDateStr: string;
 }) {
+  const { t, locale } = useTranslation();
+  const intlLocale = toIntlLocale(locale);
   const [selectedDate, setSelectedDate] = useState(
     dateStrings.includes(todayDateStr) ? todayDateStr : dateStrings[0],
   );
@@ -64,7 +53,10 @@ export function MonthCalendar({
       <div className="flex h-full flex-1 flex-col rounded-2xl bg-black/4 p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">
-            {MONTH_LABELS[month]} {year}
+            {new Date(year, month, 1).toLocaleDateString(intlLocale, {
+              month: "long",
+              year: "numeric",
+            })}
           </h1>
           <div className="flex items-center gap-2">
             <Link
@@ -84,7 +76,7 @@ export function MonthCalendar({
 
         <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs font-semibold text-muted-foreground">
           {WEEKDAY_LABELS.map((d) => (
-            <div key={d}>{d}</div>
+            <div key={d}>{t(d).toUpperCase()}</div>
           ))}
         </div>
 
@@ -134,7 +126,7 @@ export function MonthCalendar({
 
       <div className="flex h-full w-[300px] shrink-0 flex-col overflow-y-auto rounded-2xl bg-black/7 p-6">
         <p className="text-sm font-semibold">
-          {selectedDateObj.toLocaleDateString("id-ID", {
+          {selectedDateObj.toLocaleDateString(intlLocale, {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -148,12 +140,12 @@ export function MonthCalendar({
         <div className="mt-3">
           {selectedTasks.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Belum ada task di tanggal ini.
+              {t("No tasks on this date yet.")}
             </p>
           ) : (
             <ul className="flex flex-col gap-3">
-              {selectedTasks.map((t) => (
-                <TaskItem key={t.id} task={t} contexts={contexts} />
+              {selectedTasks.map((task) => (
+                <TaskItem key={task.id} task={task} contexts={contexts} />
               ))}
             </ul>
           )}

@@ -16,6 +16,7 @@ import {
   CATEGORY_COLOR_CLASSES,
   resolveChannelColor,
 } from "@/lib/category-colors";
+import { useTranslation } from "@/lib/i18n/context";
 import type { channel, context } from "@/db/schema";
 
 type Channel = typeof channel.$inferSelect;
@@ -30,14 +31,16 @@ function ColorSwatchPicker({
   onChange: (color: string | null) => void;
   allowInherit?: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {allowInherit && (
         <button
           type="button"
           onClick={() => onChange(null)}
-          aria-label="Ikuti warna context"
-          title="Ikuti warna context (default)"
+          aria-label={t("Follow context color")}
+          title={t("Follow context color (default)")}
           className={`flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground text-[10px] leading-none text-muted-foreground ${
             value === null ? "ring-2 ring-foreground ring-offset-2 ring-offset-background" : ""
           }`}
@@ -62,6 +65,7 @@ function ColorSwatchPicker({
 
 function CreateContextForm({ onDone }: { onDone: () => void }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [color, setColor] = useState<string | null>(CATEGORY_COLORS[0]);
 
   return (
@@ -76,7 +80,7 @@ function CreateContextForm({ onDone }: { onDone: () => void }) {
       <input
         name="name"
         autoFocus
-        placeholder="Nama context (misal: work)"
+        placeholder={t("Context name (e.g. work)")}
         required
         className="rounded-lg border border-border/60 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-primary"
       />
@@ -88,13 +92,13 @@ function CreateContextForm({ onDone }: { onDone: () => void }) {
             onClick={onDone}
             className="rounded-full border border-border/60 px-4 py-1.5 text-sm"
           >
-            Batal
+            {t("Cancel")}
           </button>
           <button
             type="submit"
             className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
           >
-            Buat
+            {t("Create")}
           </button>
         </div>
       </div>
@@ -112,6 +116,7 @@ function CreateChannelForm({
   onDone: () => void;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [color, setColor] = useState<string | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
 
@@ -128,7 +133,7 @@ function CreateChannelForm({
         <input
           name="name"
           autoFocus
-          placeholder="Nama channel (misal: marketing)"
+          placeholder={t("Channel name (e.g. marketing)")}
           required
           className="min-w-[160px] flex-1 rounded-lg border border-border/60 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-primary"
         />
@@ -159,7 +164,7 @@ function CreateChannelForm({
             onChange={(e) => setIsPrivate(e.target.checked)}
             className="h-4 w-4"
           />
-          Private
+          {t("Private")}
         </label>
       </div>
 
@@ -169,13 +174,13 @@ function CreateChannelForm({
           onClick={onDone}
           className="rounded-full border border-border/60 px-4 py-1.5 text-sm"
         >
-          Batal
+          {t("Cancel")}
         </button>
         <button
           type="submit"
           className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
         >
-          Buat
+          {t("Create")}
         </button>
       </div>
     </form>
@@ -184,6 +189,7 @@ function CreateChannelForm({
 
 function ChannelRow({ ch, contextColor }: { ch: Channel; contextColor: string }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(ch.name);
   const [color, setColor] = useState<string | null>(ch.color);
@@ -207,14 +213,14 @@ function ChannelRow({ ch, contextColor }: { ch: Channel; contextColor: string })
             className="flex-1 rounded border border-border/60 bg-transparent px-2 py-1 text-sm outline-none focus:border-primary"
           />
           <button type="submit" className="text-sm font-semibold text-primary">
-            Simpan
+            {t("Save")}
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
             className="text-sm text-muted-foreground"
           >
-            Batal
+            {t("Cancel")}
           </button>
         </div>
         <input type="hidden" name="color" value={color ?? ""} />
@@ -243,14 +249,14 @@ function ChannelRow({ ch, contextColor }: { ch: Channel; contextColor: string })
           }}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          Edit
+          {t("Edit")}
         </button>
         <button
           type="button"
           onClick={() => deleteChannel(ch.id).then(() => router.refresh())}
           className="text-xs text-red-600 hover:underline dark:text-red-400"
         >
-          Hapus
+          {t("Delete")}
         </button>
         <button
           type="button"
@@ -274,6 +280,7 @@ function ChannelRow({ ch, contextColor }: { ch: Channel; contextColor: string })
 
 function ContextHeader({ ctx }: { ctx: ContextWithChannels }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(ctx.name);
   const [color, setColor] = useState<string | null>(ctx.color);
@@ -298,14 +305,14 @@ function ContextHeader({ ctx }: { ctx: ContextWithChannels }) {
         <ColorSwatchPicker value={color} onChange={setColor} />
         <div className="flex gap-2">
           <button type="submit" className="text-sm font-semibold text-primary">
-            Simpan
+            {t("Save")}
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
             className="text-sm text-muted-foreground"
           >
-            Batal
+            {t("Cancel")}
           </button>
         </div>
       </form>
@@ -331,27 +338,31 @@ function ContextHeader({ ctx }: { ctx: ContextWithChannels }) {
         }}
         className="text-xs text-muted-foreground hover:text-foreground"
       >
-        Edit
+        {t("Edit")}
       </button>
       <button
         type="button"
         onClick={() => {
           const message =
             ctx.channels.length > 0
-              ? `Hapus context "${ctx.name}"? ${ctx.channels.length} channel di dalamnya ikut terhapus.`
-              : `Hapus context "${ctx.name}"?`;
+              ? t('Delete context "{name}"? {count} channel(s) inside it will also be deleted.', {
+                  name: ctx.name,
+                  count: ctx.channels.length,
+                })
+              : t('Delete context "{name}"?', { name: ctx.name });
           if (!window.confirm(message)) return;
           deleteContext(ctx.id).then(() => router.refresh());
         }}
         className="text-xs text-red-600 hover:underline dark:text-red-400"
       >
-        Hapus
+        {t("Delete")}
       </button>
     </div>
   );
 }
 
 export function ChannelsManager({ contexts }: { contexts: ContextWithChannels[] }) {
+  const { t } = useTranslation();
   const [creatingContext, setCreatingContext] = useState(false);
   const [creatingGlobalChannel, setCreatingGlobalChannel] = useState(false);
   const [creatingChannelFor, setCreatingChannelFor] = useState<string | null>(null);
@@ -364,14 +375,14 @@ export function ChannelsManager({ contexts }: { contexts: ContextWithChannels[] 
           onClick={() => setCreatingContext(true)}
           className="rounded-full border border-border/60 px-4 py-2 text-sm font-medium hover:bg-muted"
         >
-          Create Context
+          {t("Create Context")}
         </button>
         <button
           type="button"
           onClick={() => setCreatingGlobalChannel(true)}
           className="rounded-full border border-border/60 px-4 py-2 text-sm font-medium hover:bg-muted"
         >
-          Create Channel
+          {t("Create Channel")}
         </button>
       </div>
 
@@ -406,7 +417,7 @@ export function ChannelsManager({ contexts }: { contexts: ContextWithChannels[] 
               onClick={() => setCreatingChannelFor(ctx.id)}
               className="mt-2 text-sm text-primary hover:underline"
             >
-              + Create channel in {ctx.name}
+              {t("+ Create channel in {context}", { context: ctx.name })}
             </button>
           )}
         </div>
