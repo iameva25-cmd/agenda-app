@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flag } from "lucide-react";
 import type { channel, context, task } from "@/db/schema";
 import { CARD_FLAG_PRIORITIES, PRIORITIES } from "@/components/priority-picker";
+import { CATEGORY_COLOR_CLASSES, resolveChannelColor } from "@/lib/category-colors";
 import {
   pauseTimer,
   scheduleTask,
@@ -58,6 +58,23 @@ export function DayCalendar({
   const gridStartMinutes = START_HOUR * 60;
   const totalSlots = ((END_HOUR - START_HOUR) * 60) / SLOT_MINUTES;
   const detailTask = tasks.find((t) => t.id === detailTaskId) ?? null;
+
+  // Sumber warna sama dengan yang dipakai TaskCard/ChannelPicker: warna
+  // channel (kalau di-set), warisan dari warna context-nya kalau tidak.
+  const allChannels = contexts.flatMap((ctx) =>
+    ctx.channels.map((ch) => ({ id: ch.id, resolvedColor: resolveChannelColor(ch.color, ctx.color) })),
+  );
+  function getTaskColorKey(t: Task): string | null {
+    if (t.channelId) {
+      const ch = allChannels.find((c) => c.id === t.channelId);
+      if (ch) return ch.resolvedColor;
+    }
+    if (t.contextId) {
+      const ctx = contexts.find((c) => c.id === t.contextId);
+      if (ctx) return ctx.color;
+    }
+    return null;
+  }
 
   // Status timer untuk task yang lagi dibuka di popup detail. Di-reset dari
   // data task setiap kali popup dibuka (detailTaskId berubah), lalu berjalan
@@ -177,6 +194,8 @@ export function DayCalendar({
           const priorityFlag = CARD_FLAG_PRIORITIES.includes(scheduledTask.priority)
             ? PRIORITIES.find((p) => p.value === scheduledTask.priority)
             : null;
+          const colorKey = getTaskColorKey(scheduledTask);
+          const colorSwatch = colorKey ? CATEGORY_COLOR_CLASSES[colorKey]?.swatch : null;
 
           return (
             <div
@@ -189,10 +208,16 @@ export function DayCalendar({
               className={`absolute left-14 right-2 flex cursor-grab flex-col justify-between overflow-hidden rounded-lg px-2 py-1 text-xs shadow-sm active:cursor-grabbing ${
                 isDone
                   ? "bg-muted text-muted-foreground"
-                  : "bg-primary text-primary-foreground"
+                  : colorSwatch
+                    ? `${colorSwatch} text-white`
+                    : "bg-primary text-primary-foreground"
               }`}
               style={{ top, height }}
             >
+              <span className="opacity-80">
+                {scheduledTask.startTime}
+                {scheduledTask.endTime ? ` - ${scheduledTask.endTime}` : ""}
+              </span>
               <div className="flex items-start justify-between gap-1">
                 <div className="flex items-start gap-1.5">
                   <TaskCheckbox
@@ -201,9 +226,6 @@ export function DayCalendar({
                     size="sm"
                     className="mt-0.5"
                   />
-                  {priorityFlag && (
-                    <Flag className={`mt-0.5 h-3 w-3 shrink-0 ${priorityFlag.flagColor}`} />
-                  )}
                   <button
                     type="button"
                     onClick={() => setDetailTaskId(scheduledTask.id)}
@@ -224,10 +246,13 @@ export function DayCalendar({
                   </button>
                 </form>
               </div>
-              <span className="opacity-80">
-                {scheduledTask.startTime}
-                {scheduledTask.endTime ? ` - ${scheduledTask.endTime}` : ""}
-              </span>
+              {priorityFlag && (
+                <span
+                  className={`self-start rounded-full px-1.5 py-0 text-[10px] font-medium leading-4 ${priorityFlag.badgeClass}`}
+                >
+                  {t(priorityFlag.label)}
+                </span>
+              )}
             </div>
           );
         })}

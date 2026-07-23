@@ -14,13 +14,11 @@ export async function DayColumn({
   tasks,
   contexts,
   isToday,
-  hideScheduled = false,
 }: {
   dateStr: string;
   tasks: Task[];
   contexts: ContextWithChannels[];
   isToday: boolean;
-  hideScheduled?: boolean;
 }) {
   const locale = await getLocale();
   const intlLocale = toIntlLocale(locale);
@@ -38,12 +36,6 @@ export async function DayColumn({
     return 0;
   });
 
-  // hideScheduled: dipakai di /home untuk hari ini saja, karena task yang
-  // sudah dijadwalkan ditampilkan di panel timeline kanan, bukan di sini.
-  // Halaman lain (misal /week) tidak punya timeline itu, jadi semua task
-  // (dijadwalkan maupun belum) tetap tampil di kolom.
-  const visibleTasks = hideScheduled ? sorted.filter((t) => !t.startTime) : sorted;
-
   return (
     <div
       className={`w-[300px] shrink-0 rounded-2xl border p-4 ${
@@ -56,7 +48,7 @@ export async function DayColumn({
       <AddTaskPopup dateStr={dateStr} />
 
       <div className="mt-2">
-        <TaskList tasks={visibleTasks} contexts={contexts} />
+        <TaskList tasks={sorted} contexts={contexts} />
       </div>
     </div>
   );
