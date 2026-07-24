@@ -134,7 +134,7 @@ export function MonthCalendar({
         </p>
 
         <div className="mt-3">
-          <AddTaskPopup dateStr={selectedDate} />
+          <AddTaskPopup dateStr={selectedDate} contexts={contexts} />
         </div>
 
         <div className="mt-3">

@@ -101,6 +101,9 @@ export const task = pgTable(
     channel: text("channel"),
     channelId: text("channel_id").references(() => channel.id, { onDelete: "set null" }),
     contextId: text("context_id").references(() => context.id, { onDelete: "set null" }),
+    weeklyObjectiveId: text("weekly_objective_id").references(() => weeklyObjective.id, {
+      onDelete: "set null",
+    }),
     priority: text("priority").notNull().default("normal"),
     actualSeconds: integer("actual_seconds").notNull().default(0),
     timerStartedAt: timestamp("timer_started_at"),
@@ -145,6 +148,10 @@ export const taskRelations = relations(task, ({ one, many }) => ({
   context: one(context, {
     fields: [task.contextId],
     references: [context.id],
+  }),
+  weeklyObjective: one(weeklyObjective, {
+    fields: [task.weeklyObjectiveId],
+    references: [weeklyObjective.id],
   }),
 }));
 

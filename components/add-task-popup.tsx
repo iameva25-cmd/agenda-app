@@ -5,21 +5,27 @@ import {
   Plus,
   Calendar,
   Clock,
-  Hash,
   Target,
-  ArrowUpDown,
   ChevronLeft,
   ChevronRight,
   Check,
-  Lock,
 } from "lucide-react";
+import Link from "next/link";
 import { createTask } from "@/lib/actions/tasks";
-import { formatDate, addDays } from "@/lib/date";
+import { getObjectivesForWeek } from "@/lib/actions/objectives";
+import { formatDate, addDays, parseDateString, getMondayOfWeek } from "@/lib/date";
+import { formatDurationMinutes } from "@/lib/time";
 import { PriorityPicker } from "@/components/priority-picker";
+import { ChannelPicker } from "@/components/channel-picker";
 import { useTranslation } from "@/lib/i18n/context";
 import { toIntlLocale } from "@/lib/i18n/dates";
+import type { channel, context } from "@/db/schema";
 
-type Dropdown = "date" | "time" | "channel" | null;
+type Channel = typeof channel.$inferSelect;
+type ContextWithChannels = typeof context.$inferSelect & { channels: Channel[] };
+
+type Dropdown = "date" | "time" | "objective" | null;
+type ObjectiveOption = { id: string; text: string };
 
 const SOMEDAY_OPTIONS = [
   { label: "in the next week", offsetDays: 7, dot: "bg-green-500" },
@@ -39,27 +45,6 @@ const QUICK_DURATIONS = [
   { label: "30 min", minutes: 30 },
   { label: "45 min", minutes: 45 },
   { label: "1 hr", minutes: 60 },
-];
-
-type ChannelOption = { name: string; private: boolean };
-type ChannelGroup = { name: string; children: ChannelOption[] };
-
-const CHANNEL_GROUPS: ChannelGroup[] = [
-  {
-    name: "work",
-    children: [
-      { name: "business development", private: false },
-      { name: "finance", private: false },
-      { name: "marketing", private: false },
-    ],
-  },
-  {
-    name: "personal",
-    children: [
-      { name: "family activities", private: true },
-      { name: "household management", private: true },
-    ],
-  },
 ];
 
 function getMonthWeeks(year: number, month: number) {
@@ -82,7 +67,13 @@ function isSameDay(a: Date, b: Date) {
   );
 }
 
-export function AddTaskPopup({ dateStr }: { dateStr: string }) {
+export function AddTaskPopup({
+  dateStr,
+  contexts,
+}: {
+  dateStr: string;
+  contexts: ContextWithChannels[];
+}) {
   const { t, locale } = useTranslation();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -98,17 +89,22 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
 
   const [durationMinutes, setDurationMinutes] = useState<number | null>(null);
   const [durationLabel, setDurationLabel] = useState("--:--");
+  const [durationInput, setDurationInput] = useState("");
   const [plannedTime, setPlannedTime] = useState("");
 
-  const [channel, setChannel] = useState<string | null>(null);
-  const [channelSearch, setChannelSearch] = useState("");
+  const [channelId, setChannelId] = useState<string | null>(null);
+  const [contextId, setContextId] = useState<string | null>(null);
 
   const [priority, setPriority] = useState("normal");
+
+  const [weeklyObjectiveId, setWeeklyObjectiveId] = useState<string | null>(null);
+  const [objectives, setObjectives] = useState<ObjectiveOption[]>([]);
+  const [objectivesLoading, setObjectivesLoading] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dateButtonRef = useRef<HTMLButtonElement>(null);
   const timeButtonRef = useRef<HTMLButtonElement>(null);
-  const channelButtonRef = useRef<HTMLButtonElement>(null);
+  const objectiveButtonRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleOpen() {
@@ -119,10 +115,12 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
     setCalendarMonth(new Date(y, m - 1, 1));
     setDurationMinutes(null);
     setDurationLabel("--:--");
+    setDurationInput("");
     setPlannedTime("");
-    setChannel(null);
-    setChannelSearch("");
+    setChannelId(null);
+    setContextId(null);
     setPriority("normal");
+    setWeeklyObjectiveId(null);
     setActiveDropdown(null);
     setOpen(true);
   }
@@ -139,7 +137,6 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
     }
     const rect = ref.current?.getBoundingClientRect();
     if (rect) setDropdownPos({ top: rect.bottom + 4, left: rect.left });
-    if (which === "channel") setChannelSearch("");
     setActiveDropdown(which);
   }
 
@@ -151,12 +148,44 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
   function pickDuration(minutes: number, label: string) {
     setDurationMinutes(minutes);
     setDurationLabel(label);
+    setDurationInput(formatDurationMinutes(minutes));
     setActiveDropdown(null);
   }
 
-  function pickChannel(name: string | null) {
-    setChannel(name);
+  // Format "j:mm" (misal "2:25" = 2 jam 25 menit) — user boleh ketik durasi
+  // berapa pun, tidak harus cocok salah satu preset di bawahnya.
+  function handleDurationInputChange(value: string) {
+    setDurationInput(value);
+    const match = value.trim().match(/^(\d{1,3}):([0-5]?\d)$/);
+    if (!match) return;
+    const totalMinutes = Number(match[1]) * 60 + Number(match[2]);
+    if (totalMinutes <= 0) return;
+    setDurationMinutes(totalMinutes);
+    setDurationLabel(formatDurationMinutes(totalMinutes));
+  }
+
+  function pickObjective(id: string | null) {
+    setWeeklyObjectiveId(id);
     setActiveDropdown(null);
+  }
+
+  async function openObjectiveDropdown(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (activeDropdown === "objective") {
+      setActiveDropdown(null);
+      return;
+    }
+    const rect = objectiveButtonRef.current?.getBoundingClientRect();
+    if (rect) setDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    setActiveDropdown("objective");
+    setObjectivesLoading(true);
+    // Objective minggu ini ditentukan dari tanggal task yang lagi dipilih,
+    // bukan selalu minggu berjalan — supaya task di masa depan align ke
+    // objective minggunya sendiri.
+    const weekStart = formatDate(getMondayOfWeek(parseDateString(selectedDate)));
+    const list = await getObjectivesForWeek(weekStart);
+    setObjectives(list);
+    setObjectivesLoading(false);
   }
 
   useEffect(() => {
@@ -183,14 +212,6 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
   const [selY, selM, selD] = selectedDate.split("-").map(Number);
   const selectedDateObj = new Date(selY, selM - 1, selD);
   const today = new Date();
-
-  const filteredChannels = CHANNEL_GROUPS.map((group) => ({
-    ...group,
-    matchesSelf: group.name.toLowerCase().includes(channelSearch.toLowerCase()),
-    children: group.children.filter((c) =>
-      c.name.toLowerCase().includes(channelSearch.toLowerCase()),
-    ),
-  })).filter((group) => group.matchesSelf || group.children.length > 0);
 
   return (
     <>
@@ -274,29 +295,40 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                     <Clock className="h-3.5 w-3.5" />
                     {durationLabel === "--:--" ? durationLabel : t(durationLabel)}
                   </button>
+                  <ChannelPicker
+                    contexts={contexts}
+                    channelId={channelId}
+                    contextId={contextId}
+                    onSelectChannel={(id) => {
+                      setChannelId(id);
+                      setContextId(null);
+                    }}
+                    onSelectContext={(id) => {
+                      setContextId(id);
+                      setChannelId(null);
+                    }}
+                  />
                   <button
-                    ref={channelButtonRef}
+                    ref={objectiveButtonRef}
                     type="button"
-                    onClick={(e) => toggleDropdown("channel", channelButtonRef, e)}
-                    className="flex items-center gap-1 hover:text-foreground"
+                    onClick={openObjectiveDropdown}
+                    title={t("Align with objective")}
+                    className={`flex items-center hover:text-foreground ${
+                      weeklyObjectiveId ? "text-primary" : ""
+                    }`}
                   >
-                    <Hash className="h-3.5 w-3.5" />
-                    {channel ?? t("channel")}
-                  </button>
-                  <button type="button" className="hover:text-foreground">
                     <Target className="h-3.5 w-3.5" />
                   </button>
                   <PriorityPicker value={priority} onChange={setPriority} />
-                  <button type="button" className="hover:text-foreground">
-                    <ArrowUpDown className="h-3.5 w-3.5" />
-                  </button>
                 </div>
 
                 <input type="hidden" name="date" value={selectedDate} />
                 <input type="hidden" name="estimatedMinutes" value={durationMinutes ?? ""} />
                 <input type="hidden" name="startTime" value={plannedTime} />
-                <input type="hidden" name="channel" value={channel ?? ""} />
+                <input type="hidden" name="channelId" value={channelId ?? ""} />
+                <input type="hidden" name="contextId" value={contextId ?? ""} />
                 <input type="hidden" name="priority" value={priority} />
+                <input type="hidden" name="weeklyObjectiveId" value={weeklyObjectiveId ?? ""} />
               </form>
             </div>
           </div>
@@ -433,6 +465,18 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
                 />
               </label>
 
+              <label className="mt-2 flex items-center justify-between text-xs font-medium text-muted-foreground">
+                {t("Duration:")}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="h:mm"
+                  value={durationInput}
+                  onChange={(e) => handleDurationInputChange(e.target.value)}
+                  className="w-16 rounded border border-border/60 bg-transparent px-1.5 py-0.5 text-right text-xs outline-none focus:border-primary"
+                />
+              </label>
+
               <div className="mt-2 max-h-48 overflow-y-auto border-t border-border/50 pt-2">
                 {QUICK_DURATIONS.map((d) => (
                   <button
@@ -451,80 +495,59 @@ export function AddTaskPopup({ dateStr }: { dateStr: string }) {
             </div>
           )}
 
-          {activeDropdown === "channel" && dropdownPos && (
+          {activeDropdown === "objective" && dropdownPos && (
             <div
               className="absolute z-50 w-64 rounded-lg border border-border/60 bg-background p-3 shadow-2xl ring-1 ring-black/5"
               style={{ top: dropdownPos.top, left: dropdownPos.left }}
               onClick={(e) => e.stopPropagation()}
             >
               <p className="px-1 text-xs font-medium text-muted-foreground">
-                {t("Assign to channel")}
+                {t("Align with objective")}
               </p>
-              <input
-                autoFocus
-                value={channelSearch}
-                onChange={(e) => setChannelSearch(e.target.value)}
-                placeholder={t("Search...")}
-                className="mt-1 w-full rounded border border-border/60 bg-transparent px-2 py-1 text-xs outline-none focus:border-primary"
-              />
 
               <div className="mt-2 max-h-56 overflow-y-auto">
-                {"unassigned".includes(channelSearch.toLowerCase()) && (
-                  <button
-                    type="button"
-                    onClick={() => pickChannel(null)}
-                    className="flex w-full items-center justify-between rounded px-1.5 py-1 text-left text-xs text-muted-foreground hover:bg-muted"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Hash className="h-3 w-3" />
-                      {t("Unassigned")}
-                    </span>
-                    {channel === null && <Check className="h-3.5 w-3.5" />}
-                  </button>
-                )}
-
-                {filteredChannels.map((group) => (
-                  <div key={group.name}>
+                {objectivesLoading ? (
+                  <p className="px-1 py-2 text-xs text-muted-foreground">{t("Loading...")}</p>
+                ) : objectives.length === 0 ? (
+                  <div className="px-1 py-2 text-xs text-muted-foreground">
+                    <p>{t("No objectives set for this week")}</p>
+                    <Link
+                      href="/week/planning"
+                      onClick={() => setActiveDropdown(null)}
+                      className="mt-1 inline-block text-primary hover:underline"
+                    >
+                      {t("Go to Weekly Planning")}
+                    </Link>
+                  </div>
+                ) : (
+                  <>
                     <button
                       type="button"
-                      onClick={() => pickChannel(group.name)}
-                      className="flex w-full items-center justify-between rounded px-1.5 py-1 text-left text-xs hover:bg-muted"
+                      onClick={() => pickObjective(null)}
+                      className="flex w-full items-center justify-between rounded px-1.5 py-1 text-left text-xs text-muted-foreground hover:bg-muted"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <Hash className="h-3 w-3 text-primary" />
-                        {group.name}
-                      </span>
-                      {channel === group.name && <Check className="h-3.5 w-3.5" />}
+                      {t("None")}
+                      {weeklyObjectiveId === null && <Check className="h-3.5 w-3.5" />}
                     </button>
-                    {group.children.map((c) => (
+                    {objectives.map((obj) => (
                       <button
-                        key={c.name}
+                        key={obj.id}
                         type="button"
-                        onClick={() => pickChannel(c.name)}
-                        className="flex w-full items-center justify-between rounded px-1.5 py-1 pl-5 text-left text-xs hover:bg-muted"
+                        onClick={() => pickObjective(obj.id)}
+                        className="flex w-full items-center justify-between gap-2 rounded px-1.5 py-1 text-left text-xs hover:bg-muted"
                       >
-                        <span className="flex items-center gap-1.5">
-                          {c.private ? (
-                            <Lock className="h-3 w-3 text-muted-foreground" />
-                          ) : (
-                            <Hash className="h-3 w-3 text-primary" />
-                          )}
-                          {c.name}
+                        <span className="flex items-center gap-1.5 truncate">
+                          <Target className="h-3 w-3 shrink-0 text-primary" />
+                          <span className="truncate">{obj.text}</span>
                         </span>
-                        {channel === c.name && <Check className="h-3.5 w-3.5" />}
+                        {weeklyObjectiveId === obj.id && (
+                          <Check className="h-3.5 w-3.5 shrink-0" />
+                        )}
                       </button>
                     ))}
-                  </div>
-                ))}
+                  </>
+                )}
               </div>
-
-              <button
-                type="button"
-                title={t("Not available yet — channel settings haven't been set up")}
-                className="mt-2 w-full border-t border-border/50 pt-2 text-left text-xs text-primary hover:underline"
-              >
-                {t("Manage channels")}
-              </button>
             </div>
           )}
         </div>

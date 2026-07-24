@@ -29,6 +29,21 @@ export const CATEGORY_COLOR_CLASSES: Record<string, { swatch: string; text: stri
   teal: { swatch: "bg-teal-500", text: "text-teal-600 dark:text-teal-400" },
 };
 
+// Versi pastel/lembut dari warna yang sama (dipakai di blok kalender kanan,
+// yang teksnya lumayan padat sehingga warna solid -500 terlalu menyilaukan).
+// Pola bg-X-100/text-X-700 ini sama dengan yang sudah dipakai untuk badge
+// priority di priority-picker.tsx.
+export const CATEGORY_COLOR_SOFT_CLASSES: Record<string, { bg: string; text: string }> = {
+  sky: { bg: "bg-sky-100 dark:bg-sky-950/40", text: "text-sky-700 dark:text-sky-300" },
+  orange: { bg: "bg-orange-100 dark:bg-orange-950/40", text: "text-orange-700 dark:text-orange-300" },
+  green: { bg: "bg-green-100 dark:bg-green-950/40", text: "text-green-700 dark:text-green-300" },
+  purple: { bg: "bg-purple-100 dark:bg-purple-950/40", text: "text-purple-700 dark:text-purple-300" },
+  pink: { bg: "bg-pink-100 dark:bg-pink-950/40", text: "text-pink-700 dark:text-pink-300" },
+  red: { bg: "bg-red-100 dark:bg-red-950/40", text: "text-red-700 dark:text-red-300" },
+  yellow: { bg: "bg-yellow-100 dark:bg-yellow-950/40", text: "text-yellow-700 dark:text-yellow-300" },
+  teal: { bg: "bg-teal-100 dark:bg-teal-950/40", text: "text-teal-700 dark:text-teal-300" },
+};
+
 // Warna asli (hex) untuk dipakai di chart (recharts butuh warna CSS asli,
 // bukan className Tailwind) — dicocokkan dengan shade -500 di atas.
 export const CATEGORY_COLOR_HEX: Record<string, string> = {

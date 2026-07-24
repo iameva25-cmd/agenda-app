@@ -40,6 +40,20 @@ export async function createTask(formData: FormData) {
   const channelRaw = formData.get("channel");
   const channel = typeof channelRaw === "string" && channelRaw.trim() !== "" ? channelRaw : null;
 
+  const channelIdRaw = formData.get("channelId");
+  const channelId =
+    typeof channelIdRaw === "string" && channelIdRaw.trim() !== "" ? channelIdRaw : null;
+
+  const contextIdRaw = formData.get("contextId");
+  const contextId =
+    typeof contextIdRaw === "string" && contextIdRaw.trim() !== "" ? contextIdRaw : null;
+
+  const weeklyObjectiveIdRaw = formData.get("weeklyObjectiveId");
+  const weeklyObjectiveId =
+    typeof weeklyObjectiveIdRaw === "string" && weeklyObjectiveIdRaw.trim() !== ""
+      ? weeklyObjectiveIdRaw
+      : null;
+
   const priorityRaw = formData.get("priority");
   const priority =
     typeof priorityRaw === "string" && PRIORITY_VALUES.includes(priorityRaw)
@@ -61,9 +75,12 @@ export async function createTask(formData: FormData) {
     date,
     estimatedMinutes,
     channel,
+    channelId,
+    contextId,
     priority,
     startTime,
     endTime,
+    weeklyObjectiveId,
   });
 
   revalidatePath("/today");

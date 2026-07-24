@@ -68,7 +68,7 @@ export default async function TodayFocusPage() {
         <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
         <div className="mt-2">
-          <AddTaskPopup dateStr={todayDateStr} />
+          <AddTaskPopup dateStr={todayDateStr} contexts={contexts} />
         </div>
 
         <div className="mt-2">

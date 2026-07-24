@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { channel, context, task } from "@/db/schema";
 import { CARD_FLAG_PRIORITIES, PRIORITIES } from "@/components/priority-picker";
-import { CATEGORY_COLOR_CLASSES, resolveChannelColor } from "@/lib/category-colors";
+import { CATEGORY_COLOR_SOFT_CLASSES, resolveChannelColor } from "@/lib/category-colors";
 import {
   pauseTimer,
   scheduleTask,
@@ -195,7 +195,7 @@ export function DayCalendar({
             ? PRIORITIES.find((p) => p.value === scheduledTask.priority)
             : null;
           const colorKey = getTaskColorKey(scheduledTask);
-          const colorSwatch = colorKey ? CATEGORY_COLOR_CLASSES[colorKey]?.swatch : null;
+          const softColor = colorKey ? CATEGORY_COLOR_SOFT_CLASSES[colorKey] : null;
 
           return (
             <div
@@ -208,8 +208,8 @@ export function DayCalendar({
               className={`absolute left-14 right-2 flex cursor-grab flex-col justify-between overflow-hidden rounded-lg px-2 py-1 text-xs shadow-sm active:cursor-grabbing ${
                 isDone
                   ? "bg-muted text-muted-foreground"
-                  : colorSwatch
-                    ? `${colorSwatch} text-white`
+                  : softColor
+                    ? `${softColor.bg} ${softColor.text}`
                     : "bg-primary text-primary-foreground"
               }`}
               style={{ top, height }}

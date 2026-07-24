@@ -45,7 +45,7 @@ export async function DayColumn({
       <p className="text-xl font-bold">{dayName}</p>
       <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
-      <AddTaskPopup dateStr={dateStr} />
+      <AddTaskPopup dateStr={dateStr} contexts={contexts} />
 
       <div className="mt-2">
         <TaskList tasks={sorted} contexts={contexts} />
