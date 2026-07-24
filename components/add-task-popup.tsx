@@ -5,18 +5,16 @@ import {
   Plus,
   Calendar,
   Clock,
-  Target,
   ChevronLeft,
   ChevronRight,
   Check,
 } from "lucide-react";
-import Link from "next/link";
 import { createTask } from "@/lib/actions/tasks";
-import { getObjectivesForWeek } from "@/lib/actions/objectives";
-import { formatDate, addDays, parseDateString, getMondayOfWeek } from "@/lib/date";
+import { formatDate, addDays } from "@/lib/date";
 import { formatDurationMinutes } from "@/lib/time";
 import { PriorityPicker } from "@/components/priority-picker";
 import { ChannelPicker } from "@/components/channel-picker";
+import { ObjectivePicker } from "@/components/objective-picker";
 import { useTranslation } from "@/lib/i18n/context";
 import { toIntlLocale } from "@/lib/i18n/dates";
 import type { channel, context } from "@/db/schema";
@@ -24,8 +22,7 @@ import type { channel, context } from "@/db/schema";
 type Channel = typeof channel.$inferSelect;
 type ContextWithChannels = typeof context.$inferSelect & { channels: Channel[] };
 
-type Dropdown = "date" | "time" | "objective" | null;
-type ObjectiveOption = { id: string; text: string };
+type Dropdown = "date" | "time" | null;
 
 const SOMEDAY_OPTIONS = [
   { label: "in the next week", offsetDays: 7, dot: "bg-green-500" },
@@ -98,13 +95,10 @@ export function AddTaskPopup({
   const [priority, setPriority] = useState("normal");
 
   const [weeklyObjectiveId, setWeeklyObjectiveId] = useState<string | null>(null);
-  const [objectives, setObjectives] = useState<ObjectiveOption[]>([]);
-  const [objectivesLoading, setObjectivesLoading] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dateButtonRef = useRef<HTMLButtonElement>(null);
   const timeButtonRef = useRef<HTMLButtonElement>(null);
-  const objectiveButtonRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleOpen() {
@@ -162,30 +156,6 @@ export function AddTaskPopup({
     if (totalMinutes <= 0) return;
     setDurationMinutes(totalMinutes);
     setDurationLabel(formatDurationMinutes(totalMinutes));
-  }
-
-  function pickObjective(id: string | null) {
-    setWeeklyObjectiveId(id);
-    setActiveDropdown(null);
-  }
-
-  async function openObjectiveDropdown(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (activeDropdown === "objective") {
-      setActiveDropdown(null);
-      return;
-    }
-    const rect = objectiveButtonRef.current?.getBoundingClientRect();
-    if (rect) setDropdownPos({ top: rect.bottom + 4, left: rect.left });
-    setActiveDropdown("objective");
-    setObjectivesLoading(true);
-    // Objective minggu ini ditentukan dari tanggal task yang lagi dipilih,
-    // bukan selalu minggu berjalan — supaya task di masa depan align ke
-    // objective minggunya sendiri.
-    const weekStart = formatDate(getMondayOfWeek(parseDateString(selectedDate)));
-    const list = await getObjectivesForWeek(weekStart);
-    setObjectives(list);
-    setObjectivesLoading(false);
   }
 
   useEffect(() => {
@@ -308,17 +278,11 @@ export function AddTaskPopup({
                       setChannelId(null);
                     }}
                   />
-                  <button
-                    ref={objectiveButtonRef}
-                    type="button"
-                    onClick={openObjectiveDropdown}
-                    title={t("Align with objective")}
-                    className={`flex items-center hover:text-foreground ${
-                      weeklyObjectiveId ? "text-primary" : ""
-                    }`}
-                  >
-                    <Target className="h-3.5 w-3.5" />
-                  </button>
+                  <ObjectivePicker
+                    dateStr={selectedDate}
+                    weeklyObjectiveId={weeklyObjectiveId}
+                    onSelect={setWeeklyObjectiveId}
+                  />
                   <PriorityPicker value={priority} onChange={setPriority} />
                 </div>
 
@@ -495,61 +459,6 @@ export function AddTaskPopup({
             </div>
           )}
 
-          {activeDropdown === "objective" && dropdownPos && (
-            <div
-              className="absolute z-50 w-64 rounded-lg border border-border/60 bg-background p-3 shadow-2xl ring-1 ring-black/5"
-              style={{ top: dropdownPos.top, left: dropdownPos.left }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <p className="px-1 text-xs font-medium text-muted-foreground">
-                {t("Align with objective")}
-              </p>
-
-              <div className="mt-2 max-h-56 overflow-y-auto">
-                {objectivesLoading ? (
-                  <p className="px-1 py-2 text-xs text-muted-foreground">{t("Loading...")}</p>
-                ) : objectives.length === 0 ? (
-                  <div className="px-1 py-2 text-xs text-muted-foreground">
-                    <p>{t("No objectives set for this week")}</p>
-                    <Link
-                      href="/week/planning"
-                      onClick={() => setActiveDropdown(null)}
-                      className="mt-1 inline-block text-primary hover:underline"
-                    >
-                      {t("Go to Weekly Planning")}
-                    </Link>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => pickObjective(null)}
-                      className="flex w-full items-center justify-between rounded px-1.5 py-1 text-left text-xs text-muted-foreground hover:bg-muted"
-                    >
-                      {t("None")}
-                      {weeklyObjectiveId === null && <Check className="h-3.5 w-3.5" />}
-                    </button>
-                    {objectives.map((obj) => (
-                      <button
-                        key={obj.id}
-                        type="button"
-                        onClick={() => pickObjective(obj.id)}
-                        className="flex w-full items-center justify-between gap-2 rounded px-1.5 py-1 text-left text-xs hover:bg-muted"
-                      >
-                        <span className="flex items-center gap-1.5 truncate">
-                          <Target className="h-3 w-3 shrink-0 text-primary" />
-                          <span className="truncate">{obj.text}</span>
-                        </span>
-                        {weeklyObjectiveId === obj.id && (
-                          <Check className="h-3.5 w-3.5 shrink-0" />
-                        )}
-                      </button>
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </>

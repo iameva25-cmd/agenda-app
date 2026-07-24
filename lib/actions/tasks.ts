@@ -336,3 +336,88 @@ export async function moveTaskToDay(
 
   revalidatePath("/today");
 }
+
+export async function setTaskDate(id: string, date: string) {
+  const userId = await requireUserId();
+
+  await db
+    .update(task)
+    .set({ date })
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  revalidatePath("/today");
+}
+
+export async function setTaskDueDate(id: string, dueDate: string | null) {
+  const userId = await requireUserId();
+
+  await db
+    .update(task)
+    .set({ dueDate })
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  revalidatePath("/today");
+}
+
+const REPEAT_VALUES = ["daily", "weekly", "custom"];
+
+// repeatRule: null (tidak berulang), "daily", "weekly", atau
+// "custom:mon,wed,fri" (hari spesifik, disingkat 3 huruf dipisah koma).
+// Catatan: ini baru menyimpan PREFERENSI repeat-nya di task ini saja —
+// belum ada logic yang benar-benar generate task baru tiap hari/minggu.
+export async function setTaskRepeatRule(id: string, repeatRule: string | null) {
+  const userId = await requireUserId();
+
+  if (repeatRule !== null) {
+    const kind = repeatRule.split(":")[0];
+    if (!REPEAT_VALUES.includes(kind)) return;
+  }
+
+  await db
+    .update(task)
+    .set({ repeatRule })
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  revalidatePath("/today");
+}
+
+export async function setTaskWeeklyObjective(id: string, weeklyObjectiveId: string | null) {
+  const userId = await requireUserId();
+
+  await db
+    .update(task)
+    .set({ weeklyObjectiveId })
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  revalidatePath("/today");
+}
+
+export async function duplicateTask(id: string) {
+  const userId = await requireUserId();
+
+  const [existing] = await db
+    .select()
+    .from(task)
+    .where(and(eq(task.id, id), eq(task.userId, userId)));
+
+  if (!existing) return;
+
+  await db.insert(task).values({
+    userId,
+    title: `${existing.title} (copy)`,
+    description: existing.description,
+    date: existing.date,
+    dueDate: existing.dueDate,
+    repeatRule: existing.repeatRule,
+    startTime: existing.startTime,
+    endTime: existing.endTime,
+    estimatedMinutes: existing.estimatedMinutes,
+    channel: existing.channel,
+    channelId: existing.channelId,
+    contextId: existing.contextId,
+    weeklyObjectiveId: existing.weeklyObjectiveId,
+    priority: existing.priority,
+  });
+
+  revalidatePath("/today");
+}

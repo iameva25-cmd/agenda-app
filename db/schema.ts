@@ -93,6 +93,8 @@ export const task = pgTable(
     title: text("title").notNull(),
     description: text("description"),
     date: date("date").notNull(),
+    dueDate: date("due_date"),
+    repeatRule: text("repeat_rule"),
     startTime: text("start_time"),
     endTime: text("end_time"),
     estimatedMinutes: integer("estimated_minutes"),
@@ -160,6 +162,35 @@ export const subtaskRelations = relations(subtask, ({ one }) => ({
   task: one(task, {
     fields: [subtask.taskId],
     references: [task.id],
+  }),
+}));
+
+export const comment = pgTable(
+  "comment",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => task.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("comment_taskId_idx").on(table.taskId)],
+);
+
+export const commentRelations = relations(comment, ({ one }) => ({
+  task: one(task, {
+    fields: [comment.taskId],
+    references: [task.id],
+  }),
+  user: one(user, {
+    fields: [comment.userId],
+    references: [user.id],
   }),
 }));
 
