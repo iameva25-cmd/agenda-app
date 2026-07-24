@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { parseDateString } from "@/lib/date";
 import { TaskItem } from "@/components/task-item";
+import { TaskDndProvider } from "@/components/task-dnd-provider";
 import { AddTaskPopup } from "@/components/add-task-popup";
 import { useTranslation } from "@/lib/i18n/context";
 import { toIntlLocale } from "@/lib/i18n/dates";
@@ -47,8 +48,10 @@ export function MonthCalendar({
 
   const selectedTasks = tasksByDate[selectedDate] ?? [];
   const selectedDateObj = parseDateString(selectedDate);
+  const allTasks = Object.values(tasksByDate).flat();
 
   return (
+    <TaskDndProvider tasks={allTasks}>
     <div className="flex h-full gap-6">
       <div className="flex h-full flex-1 flex-col rounded-2xl bg-black/4 p-6">
         <div className="flex items-center justify-between">
@@ -152,5 +155,6 @@ export function MonthCalendar({
         </div>
       </div>
     </div>
+    </TaskDndProvider>
   );
 }

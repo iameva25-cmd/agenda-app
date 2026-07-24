@@ -2,6 +2,7 @@ import type { channel, context, task } from "@/db/schema";
 import { AddTaskPopup } from "@/components/add-task-popup";
 import { TaskList } from "@/components/task-list";
 import { parseDateString } from "@/lib/date";
+import { sortTasksForDay } from "@/lib/task-sort";
 import { getLocale } from "@/lib/i18n/server";
 import { toIntlLocale } from "@/lib/i18n/dates";
 
@@ -29,12 +30,7 @@ export async function DayColumn({
     day: "numeric",
   });
 
-  const sorted = [...tasks].sort((a, b) => {
-    if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime);
-    if (a.startTime) return -1;
-    if (b.startTime) return 1;
-    return 0;
-  });
+  const sorted = sortTasksForDay(tasks);
 
   return (
     <div
@@ -48,7 +44,7 @@ export async function DayColumn({
       <AddTaskPopup dateStr={dateStr} contexts={contexts} />
 
       <div className="mt-2">
-        <TaskList tasks={sorted} contexts={contexts} />
+        <TaskList dateStr={dateStr} tasks={sorted} contexts={contexts} />
       </div>
     </div>
   );

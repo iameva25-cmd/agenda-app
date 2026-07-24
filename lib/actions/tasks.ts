@@ -268,3 +268,71 @@ export async function unscheduleTask(id: string) {
 
   revalidatePath("/today");
 }
+
+// Dipakai waktu drag & drop reorder task dalam satu hari selesai — orderedIds
+// adalah urutan task id sesuai posisi baru di layar (dari atas ke bawah),
+// index-nya langsung dipakai jadi nilai `position`. scheduleChange opsional:
+// dipakai kalau task yang di-drag posisinya sekarang di antara/dekat task
+// lain yang sudah punya jam, sehingga jamnya sendiri ikut disesuaikan (atau
+// dihapus kalau di-drop ke zona belum terjadwal) — dihitung di client
+// (TaskDndProvider), di sini cuma nyimpan hasilnya.
+export async function reorderDayTasks(
+  orderedIds: string[],
+  scheduleChange?: { id: string; startTime: string | null; endTime: string | null },
+) {
+  const userId = await requireUserId();
+
+  await Promise.all([
+    ...orderedIds.map((id, index) =>
+      db
+        .update(task)
+        .set({ position: index })
+        .where(and(eq(task.id, id), eq(task.userId, userId))),
+    ),
+    ...(scheduleChange
+      ? [
+          db
+            .update(task)
+            .set({ startTime: scheduleChange.startTime, endTime: scheduleChange.endTime })
+            .where(and(eq(task.id, scheduleChange.id), eq(task.userId, userId))),
+        ]
+      : []),
+  ]);
+
+  revalidatePath("/today");
+}
+
+// Dipakai waktu drag & drop task ke kolom HARI LAIN — tanggalnya berubah,
+// jam (startTime/endTime) sengaja TIDAK disentuh (task pindah hari tapi
+// tetap di jam yang sama). destOrderedIds/sourceOrderedIds dipakai untuk
+// menata ulang `position` di kedua hari (tujuan & asal) sekaligus.
+export async function moveTaskToDay(
+  taskId: string,
+  newDate: string,
+  destOrderedIds: string[],
+  sourceOrderedIds: string[],
+) {
+  const userId = await requireUserId();
+
+  await db
+    .update(task)
+    .set({ date: newDate })
+    .where(and(eq(task.id, taskId), eq(task.userId, userId)));
+
+  await Promise.all([
+    ...destOrderedIds.map((id, index) =>
+      db
+        .update(task)
+        .set({ position: index })
+        .where(and(eq(task.id, id), eq(task.userId, userId))),
+    ),
+    ...sourceOrderedIds.map((id, index) =>
+      db
+        .update(task)
+        .set({ position: index })
+        .where(and(eq(task.id, id), eq(task.userId, userId))),
+    ),
+  ]);
+
+  revalidatePath("/today");
+}

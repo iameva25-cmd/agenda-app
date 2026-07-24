@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { DayColumn } from "@/components/day-column";
+import { TaskDndProvider } from "@/components/task-dnd-provider";
 import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getDailyProductivity, getTimeByChannel } from "@/lib/analytics";
@@ -42,8 +43,10 @@ export default async function WeeklyReviewPage() {
   }));
 
   const { t } = await getT();
+  const allTasks = tasksByDate.flat();
 
   return (
+    <TaskDndProvider tasks={allTasks}>
     <div className="flex h-screen overflow-hidden">
       <SidebarNav userName={session.user.name} current="week-review" />
 
@@ -122,5 +125,6 @@ export default async function WeeklyReviewPage() {
         </div>
       </main>
     </div>
+    </TaskDndProvider>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   deleteTask,
   pauseTimer,
@@ -40,6 +42,11 @@ export function TaskItem({
   const { t } = useTranslation();
   const [showDetail, setShowDetail] = useState(false);
   const isDone = task.status === "done";
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: { type: "task", dateStr: task.date },
+  });
 
   // Status timer dipegang di sini (bukan di dalam popup) supaya tidak hilang
   // saat popup ditutup lalu dibuka lagi, dan supaya badge di card ini juga
@@ -101,15 +108,20 @@ export function TaskItem({
     toggleSubtaskStatus(sub.id, sub.done);
   }
 
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
   return (
     <li
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", task.id);
-        e.dataTransfer.effectAllowed = "move";
-      }}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={() => setShowDetail(true)}
-      className="group flex cursor-pointer flex-col gap-2 rounded-2xl border border-border/60 bg-background p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
+      className="group flex select-none cursor-pointer flex-col gap-2 rounded-2xl border border-border/60 bg-background p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
     >
       {/* Baris 1: jam mulai (kalau ada) + judul (kiri) + badge actual/planned (kanan atas) */}
       <div className="flex items-start justify-between gap-3">
@@ -146,6 +158,7 @@ export function TaskItem({
               e.stopPropagation();
               setSubtasksExpanded((v) => !v);
             }}
+            onPointerDown={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
             <span className={`transition-transform ${subtasksExpanded ? "rotate-90" : ""}`}>
@@ -158,6 +171,7 @@ export function TaskItem({
             <div
               className="mt-2 flex flex-col gap-1.5"
               onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               {subtasks.map((sub) => (
                 <div key={sub.id} className="flex items-center gap-2.5">
@@ -182,7 +196,11 @@ export function TaskItem({
 
       {/* Baris 2: checkbox (kiri) — channel rata kanan, sekarang bisa diklik */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="flex items-center gap-2.5"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <TaskCheckbox
             checked={isDone}
             onToggle={() => toggleTaskStatus(task.id, task.status)}
@@ -196,7 +214,7 @@ export function TaskItem({
           )}
         </div>
 
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
           <ChannelPicker
             contexts={contexts}
             channelId={task.channelId}
@@ -213,7 +231,10 @@ export function TaskItem({
       </div>
 
       {/* Baris 3: Edit/Hapus, paling bawah card, baru muncul saat hover */}
-      <div className="flex max-h-0 items-center justify-end gap-3 overflow-hidden opacity-0 transition-all duration-150 group-hover:max-h-6 group-hover:opacity-100 group-focus-within:max-h-6 group-focus-within:opacity-100">
+      <div
+        className="flex max-h-0 items-center justify-end gap-3 overflow-hidden opacity-0 transition-all duration-150 group-hover:max-h-6 group-hover:opacity-100 group-focus-within:max-h-6 group-focus-within:opacity-100"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           onClick={(e) => {

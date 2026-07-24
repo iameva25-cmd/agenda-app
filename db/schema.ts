@@ -105,6 +105,7 @@ export const task = pgTable(
       onDelete: "set null",
     }),
     priority: text("priority").notNull().default("normal"),
+    position: integer("position").notNull().default(0),
     actualSeconds: integer("actual_seconds").notNull().default(0),
     timerStartedAt: timestamp("timer_started_at"),
     isHighlight: boolean("is_highlight").notNull().default(false),

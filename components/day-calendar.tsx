@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 import type { channel, context, task } from "@/db/schema";
 import { CARD_FLAG_PRIORITIES, PRIORITIES } from "@/components/priority-picker";
 import { CATEGORY_COLOR_SOFT_CLASSES, resolveChannelColor } from "@/lib/category-colors";
 import {
   pauseTimer,
-  scheduleTask,
   setTaskChannel,
   setTaskContext,
   setTaskPriority,
@@ -51,8 +52,6 @@ export function DayCalendar({
   contexts: ContextWithChannels[];
 }) {
   const router = useRouter();
-  const { t } = useTranslation();
-  const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
   const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
   const slots = buildSlots();
   const gridStartMinutes = START_HOUR * 60;
@@ -145,38 +144,12 @@ export function DayCalendar({
     toggleSubtaskStatus(sub.id, sub.done);
   }
 
-  async function handleDrop(e: React.DragEvent<HTMLDivElement>, slotTime: string) {
-    e.preventDefault();
-    setDragOverSlot(null);
-    const taskId = e.dataTransfer.getData("text/plain");
-    if (!taskId) return;
-    await scheduleTask(taskId, slotTime);
-  }
-
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm">
       <div className="relative" style={{ height: totalSlots * SLOT_HEIGHT }}>
         {slots.map((slotTime) => {
           const isHour = slotTime.endsWith(":00");
-          return (
-            <div
-              key={slotTime}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOverSlot(slotTime);
-              }}
-              onDragLeave={() =>
-                setDragOverSlot((cur) => (cur === slotTime ? null : cur))
-              }
-              onDrop={(e) => handleDrop(e, slotTime)}
-              className={`flex items-start gap-2 px-3 text-xs text-muted-foreground/70 transition-colors ${
-                isHour ? "border-t border-border/50" : ""
-              } ${dragOverSlot === slotTime ? "bg-primary/10" : ""}`}
-              style={{ height: SLOT_HEIGHT }}
-            >
-              {isHour && <span className="w-12 pt-1">{slotTime}</span>}
-            </div>
-          );
+          return <CalendarSlot key={slotTime} slotTime={slotTime} isHour={isHour} />;
         })}
 
         {tasks.map((scheduledTask) => {
@@ -190,70 +163,22 @@ export function DayCalendar({
             (durationMinutes / SLOT_MINUTES) * SLOT_HEIGHT,
             SLOT_HEIGHT / 2,
           );
-          const isDone = scheduledTask.status === "done";
           const priorityFlag = CARD_FLAG_PRIORITIES.includes(scheduledTask.priority)
-            ? PRIORITIES.find((p) => p.value === scheduledTask.priority)
+            ? (PRIORITIES.find((p) => p.value === scheduledTask.priority) ?? null)
             : null;
           const colorKey = getTaskColorKey(scheduledTask);
           const softColor = colorKey ? CATEGORY_COLOR_SOFT_CLASSES[colorKey] : null;
 
           return (
-            <div
+            <ScheduledBlock
               key={scheduledTask.id}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData("text/plain", scheduledTask.id);
-                e.dataTransfer.effectAllowed = "move";
-              }}
-              className={`absolute left-14 right-2 flex cursor-grab flex-col justify-between overflow-hidden rounded-lg px-2 py-1 text-xs shadow-sm active:cursor-grabbing ${
-                isDone
-                  ? "bg-muted text-muted-foreground"
-                  : softColor
-                    ? `${softColor.bg} ${softColor.text}`
-                    : "bg-primary text-primary-foreground"
-              }`}
-              style={{ top, height }}
-            >
-              <span className="opacity-80">
-                {scheduledTask.startTime}
-                {scheduledTask.endTime ? ` - ${scheduledTask.endTime}` : ""}
-              </span>
-              <div className="flex items-start justify-between gap-1">
-                <div className="flex items-start gap-1.5">
-                  <TaskCheckbox
-                    checked={isDone}
-                    onToggle={() => toggleTaskStatus(scheduledTask.id, scheduledTask.status)}
-                    size="sm"
-                    className="mt-0.5"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setDetailTaskId(scheduledTask.id)}
-                    className={`text-left font-medium leading-tight hover:underline ${
-                      isDone ? "line-through" : ""
-                    }`}
-                  >
-                    {scheduledTask.title}
-                  </button>
-                </div>
-                <form action={unscheduleTask.bind(null, scheduledTask.id)}>
-                  <button
-                    type="submit"
-                    title={t("Unschedule")}
-                    className="shrink-0 rounded-full bg-black/10 px-1.5 text-[10px] leading-4 hover:bg-black/20"
-                  >
-                    ✕
-                  </button>
-                </form>
-              </div>
-              {priorityFlag && (
-                <span
-                  className={`self-start rounded-full px-1.5 py-0 text-[10px] font-medium leading-4 ${priorityFlag.badgeClass}`}
-                >
-                  {t(priorityFlag.label)}
-                </span>
-              )}
-            </div>
+              scheduledTask={scheduledTask}
+              top={top}
+              height={height}
+              softColor={softColor}
+              priorityFlag={priorityFlag}
+              onOpenDetail={() => setDetailTaskId(scheduledTask.id)}
+            />
           );
         })}
       </div>
@@ -279,6 +204,116 @@ export function DayCalendar({
           }
           onClose={() => setDetailTaskId(null)}
         />
+      )}
+    </div>
+  );
+}
+
+function CalendarSlot({ slotTime, isHour }: { slotTime: string; isHour: boolean }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `slot:${slotTime}`,
+    data: { type: "slot", slotTime },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex items-start gap-2 px-3 text-xs text-muted-foreground/70 transition-colors ${
+        isHour ? "border-t border-border/50" : ""
+      } ${isOver ? "bg-primary/10" : ""}`}
+      style={{ height: SLOT_HEIGHT }}
+    >
+      {isHour && <span className="w-12 pt-1">{slotTime}</span>}
+    </div>
+  );
+}
+
+function ScheduledBlock({
+  scheduledTask,
+  top,
+  height,
+  softColor,
+  priorityFlag,
+  onOpenDetail,
+}: {
+  scheduledTask: Task;
+  top: number;
+  height: number;
+  softColor: { bg: string; text: string } | null;
+  priorityFlag: (typeof PRIORITIES)[number] | null;
+  onOpenDetail: () => void;
+}) {
+  const { t } = useTranslation();
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: scheduledTask.id,
+    data: { type: "scheduled-block" },
+  });
+  const isDone = scheduledTask.status === "done";
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      className={`absolute left-14 right-2 flex select-none cursor-grab flex-col justify-between overflow-hidden rounded-lg px-2 py-1 text-xs shadow-sm active:cursor-grabbing ${
+        isDone
+          ? "bg-muted text-muted-foreground"
+          : softColor
+            ? `${softColor.bg} ${softColor.text}`
+            : "bg-primary text-primary-foreground"
+      }`}
+      style={{
+        top,
+        height,
+        transform: transform ? CSS.Translate.toString(transform) : undefined,
+        opacity: isDragging ? 0.4 : 1,
+        zIndex: isDragging ? 20 : undefined,
+      }}
+    >
+      <span className="opacity-80">
+        {scheduledTask.startTime}
+        {scheduledTask.endTime ? ` - ${scheduledTask.endTime}` : ""}
+      </span>
+      <div className="flex items-start justify-between gap-1">
+        <div className="flex items-start gap-1.5">
+          <div onPointerDown={(e) => e.stopPropagation()}>
+            <TaskCheckbox
+              checked={isDone}
+              onToggle={() => toggleTaskStatus(scheduledTask.id, scheduledTask.status)}
+              size="sm"
+              className="mt-0.5"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={onOpenDetail}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`text-left font-medium leading-tight hover:underline ${
+              isDone ? "line-through" : ""
+            }`}
+          >
+            {scheduledTask.title}
+          </button>
+        </div>
+        <form
+          action={unscheduleTask.bind(null, scheduledTask.id)}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <button
+            type="submit"
+            title={t("Unschedule")}
+            className="shrink-0 rounded-full bg-black/10 px-1.5 text-[10px] leading-4 hover:bg-black/20"
+          >
+            ✕
+          </button>
+        </form>
+      </div>
+      {priorityFlag && (
+        <span
+          className={`self-start rounded-full px-1.5 py-0 text-[10px] font-medium leading-4 ${priorityFlag.badgeClass}`}
+        >
+          {t(priorityFlag.label)}
+        </span>
       )}
     </div>
   );

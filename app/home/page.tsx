@@ -6,6 +6,7 @@ import { DayColumn } from "@/components/day-column";
 import { DayCalendar } from "@/components/day-calendar";
 import { TaskReminders } from "@/components/task-reminders";
 import { HomeLoadMoreSentinel } from "@/components/home-load-more-sentinel";
+import { TaskDndProvider } from "@/components/task-dnd-provider";
 import {
   carryOverUnfinishedTasks,
   getTasksForDates,
@@ -71,38 +72,40 @@ export default async function HomePage({
     .toUpperCase();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <SidebarNav userName={session.user.name} current="home" />
+    <TaskDndProvider tasks={allTasks}>
+      <div className="flex h-screen overflow-hidden">
+        <SidebarNav userName={session.user.name} current="home" />
 
-      <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
-        <h1 className="text-xl font-bold">{t("Home")}</h1>
+        <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
+          <h1 className="text-xl font-bold">{t("Home")}</h1>
 
-        <div data-home-day-row className="mt-8 flex gap-4 overflow-x-auto pb-2">
-          {dateStrings.map((dateStr, i) => (
-            <DayColumn
-              key={dateStr}
-              dateStr={dateStr}
-              tasks={tasksByDate[i]}
-              contexts={contexts}
-              isToday={dateStr === todayDateStr}
-            />
-          ))}
-          <HomeLoadMoreSentinel currentDays={numDays} maxDays={MAX_DAYS} />
-        </div>
-      </main>
+          <div data-home-day-row className="mt-8 flex gap-4 overflow-x-auto pb-2">
+            {dateStrings.map((dateStr, i) => (
+              <DayColumn
+                key={dateStr}
+                dateStr={dateStr}
+                tasks={tasksByDate[i]}
+                contexts={contexts}
+                isToday={dateStr === todayDateStr}
+              />
+            ))}
+            <HomeLoadMoreSentinel currentDays={numDays} maxDays={MAX_DAYS} />
+          </div>
+        </main>
 
-      <aside className="w-[300px] shrink-0 overflow-y-auto border-l border-border/60 px-5 py-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground">
-            {t("Calendars")}
-          </h2>
-          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-            {shortDate}
-          </span>
-        </div>
-        <TaskReminders tasks={scheduledTasks} />
-        <DayCalendar tasks={scheduledTasks} contexts={contexts} />
-      </aside>
-    </div>
+        <aside className="w-[300px] shrink-0 overflow-y-auto border-l border-border/60 px-5 py-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-muted-foreground">
+              {t("Calendars")}
+            </h2>
+            <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              {shortDate}
+            </span>
+          </div>
+          <TaskReminders tasks={scheduledTasks} />
+          <DayCalendar tasks={scheduledTasks} contexts={contexts} />
+        </aside>
+      </div>
+    </TaskDndProvider>
   );
 }
