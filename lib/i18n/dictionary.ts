@@ -114,6 +114,8 @@ const dictionary: Record<string, string> = {
 
   // /home, /week/planning, /week/review, /analytics, /settings/channels
   Calendars: "Kalender",
+  "Hide calendar": "Sembunyikan kalender",
+  "Show calendar": "Tampilkan kalender",
   "📅 This week": "📅 Minggu Ini",
   "📅 Last week": "📅 Minggu Lalu",
   "Weekly objectives": "Objektif mingguan",

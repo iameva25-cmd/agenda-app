@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -31,10 +31,17 @@ type Channel = typeof channel.$inferSelect;
 type ContextWithChannels = typeof context.$inferSelect & { channels: Channel[] };
 type Subtask = { id: string; taskId: string; title: string; done: boolean };
 
-const START_HOUR = 6;
-const END_HOUR = 22;
+// Grid mencakup 24 jam penuh (bukan cuma 06:00-22:00) supaya task yang
+// dijadwalkan di luar jam kerja biasa (misal Tahajud jam 4 pagi) tidak
+// ke-clip/hilang dari kalender — sebelumnya container overflow-hidden bikin
+// task sebelum jam 6 pagi rendernya di luar area (top negatif) jadi invisible.
+const START_HOUR = 0;
+const END_HOUR = 24;
 const SLOT_MINUTES = 30;
 const SLOT_HEIGHT = 40; // px
+// Saat pertama render, scroll otomatis ke sekitar jam sekarang (dikurangi
+// sedikit lead) supaya user tidak harus scroll manual dari jam 00:00.
+const NOW_SCROLL_LEAD_MINUTES = 60;
 
 function buildSlots() {
   const slots: string[] = [];
@@ -144,9 +151,29 @@ export function DayCalendar({
     toggleSubtaskStatus(sub.id, sub.done);
   }
 
+  // Grid sekarang 24 jam penuh — begitu mount, scroll otomatis ke sekitar
+  // jam sekarang (dikurangi NOW_SCROLL_LEAD_MINUTES) supaya user tidak harus
+  // scroll manual dari 00:00 tiap buka Home.
+  const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const [nowAnchorMinutes] = useState(() => {
+    const nowDate = new Date();
+    const nowMinutes = nowDate.getHours() * 60 + nowDate.getMinutes();
+    const anchor = Math.max(START_HOUR * 60, nowMinutes - NOW_SCROLL_LEAD_MINUTES);
+    return Math.min(anchor, END_HOUR * 60 - SLOT_MINUTES);
+  });
+
+  useEffect(() => {
+    scrollAnchorRef.current?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm">
       <div className="relative" style={{ height: totalSlots * SLOT_HEIGHT }}>
+        <div
+          ref={scrollAnchorRef}
+          aria-hidden
+          style={{ position: "absolute", top: ((nowAnchorMinutes - gridStartMinutes) / SLOT_MINUTES) * SLOT_HEIGHT }}
+        />
         {slots.map((slotTime) => {
           const isHour = slotTime.endsWith(":00");
           return <CalendarSlot key={slotTime} slotTime={slotTime} isHour={isHour} />;

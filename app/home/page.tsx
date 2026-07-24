@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { DayColumn } from "@/components/day-column";
 import { DayCalendar } from "@/components/day-calendar";
+import { CalendarSidebar } from "@/components/calendar-sidebar";
 import { TaskReminders } from "@/components/task-reminders";
 import { HomeLoadMoreSentinel } from "@/components/home-load-more-sentinel";
 import { TaskDndProvider } from "@/components/task-dnd-provider";
@@ -93,18 +94,10 @@ export default async function HomePage({
           </div>
         </main>
 
-        <aside className="w-[300px] shrink-0 overflow-y-auto border-l border-border/60 px-5 py-10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-muted-foreground">
-              {t("Calendars")}
-            </h2>
-            <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-              {shortDate}
-            </span>
-          </div>
+        <CalendarSidebar shortDate={shortDate}>
           <TaskReminders tasks={scheduledTasks} />
           <DayCalendar tasks={scheduledTasks} contexts={contexts} />
-        </aside>
+        </CalendarSidebar>
       </div>
     </TaskDndProvider>
   );
