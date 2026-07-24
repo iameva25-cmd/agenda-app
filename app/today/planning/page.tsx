@@ -8,7 +8,12 @@ import { TaskList } from "@/components/task-list";
 import { AddTaskPopup } from "@/components/add-task-popup";
 import { DayCalendar } from "@/components/day-calendar";
 import { TaskReminders } from "@/components/task-reminders";
+import { TodayDateDropdown } from "@/components/today-date-dropdown";
+import { TodayFilterDropdown } from "@/components/today-filter-dropdown";
+import { ShutdownTimeCard } from "@/components/shutdown-time-card";
 import { getTasksForDate, getTodayDateString } from "@/lib/tasks";
+import { getShutdownTime } from "@/lib/actions/daily-plan";
+import { parseDateString } from "@/lib/date";
 import { sortTasksForDay } from "@/lib/task-sort";
 import { getContextsWithChannels } from "@/lib/actions/channels";
 import { getT } from "@/lib/i18n/server";
@@ -17,7 +22,18 @@ import { getTimeZone } from "@/lib/timezone-server";
 
 export const dynamic = "force-dynamic";
 
-export default async function DailyPlanningPage() {
+const DATE_STR_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export default async function DailyPlanningPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    date?: string;
+    channelId?: string;
+    contextId?: string;
+    priority?: string;
+  }>;
+}) {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
@@ -26,21 +42,47 @@ export default async function DailyPlanningPage() {
 
   const timeZone = await getTimeZone();
   const todayDateStr = getTodayDateString(timeZone);
-  const [tasks, contexts] = await Promise.all([
-    getTasksForDate(session.user.id, todayDateStr),
+  const params = await searchParams;
+  const viewDateStr =
+    params.date && DATE_STR_RE.test(params.date) ? params.date : todayDateStr;
+  const filterChannelId = params.channelId ?? null;
+  const filterContextId = params.contextId ?? null;
+  const filterPriority = params.priority ?? null;
+
+  const [tasks, contexts, shutdownTime] = await Promise.all([
+    getTasksForDate(session.user.id, viewDateStr),
     getContextsWithChannels(),
+    getShutdownTime(viewDateStr),
   ]);
 
-  const sortedTasks = sortTasksForDay(tasks);
-  const scheduledTasks = tasks.filter((t) => t.startTime);
+  const channelToContext = new Map<string, string>();
+  for (const ctx of contexts) {
+    for (const ch of ctx.channels) channelToContext.set(ch.id, ctx.id);
+  }
+
+  let filteredTasks = tasks;
+  if (filterChannelId) {
+    filteredTasks = filteredTasks.filter((t) => t.channelId === filterChannelId);
+  } else if (filterContextId) {
+    filteredTasks = filteredTasks.filter(
+      (t) =>
+        t.contextId === filterContextId ||
+        (t.channelId && channelToContext.get(t.channelId) === filterContextId),
+    );
+  }
+  if (filterPriority) {
+    filteredTasks = filteredTasks.filter((t) => t.priority === filterPriority);
+  }
+
+  const sortedTasks = sortTasksForDay(filteredTasks);
+  const scheduledTasks = filteredTasks.filter((t) => t.startTime);
 
   const { t, locale } = await getT();
-  const now = new Date();
-  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: "long", timeZone });
-  const dateLabel = now.toLocaleDateString(toIntlLocale(locale), {
+  const viewDateObj = parseDateString(viewDateStr);
+  const dayName = viewDateObj.toLocaleDateString(toIntlLocale(locale), { weekday: "long" });
+  const dateLabel = viewDateObj.toLocaleDateString(toIntlLocale(locale), {
     month: "long",
     day: "numeric",
-    timeZone,
   });
 
   return (
@@ -48,35 +90,13 @@ export default async function DailyPlanningPage() {
       <div className="flex h-screen overflow-hidden">
         <SidebarNav userName={session.user.name} current="today-planning" />
 
-        <div className="w-[280px] shrink-0 overflow-y-auto border-r border-border/60 px-6 py-10">
+        <div className="w-[448px] shrink-0 overflow-y-auto border-r border-border/60 px-6 py-10">
           <h1 className="text-xl font-bold">{t("What do you want to get done today?")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("Add tasks you want to work on today.")}
           </p>
 
-          <div className="mt-6 rounded-2xl border border-border/60 p-4 shadow-sm">
-            <p className="text-sm font-semibold">{t("Shutdown time")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("What time would you like to wrap up work by?")}
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              <input
-                type="time"
-                defaultValue="21:00"
-                disabled
-                title={t("Coming soon")}
-                className="rounded-lg border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/70"
-              />
-              <button
-                type="button"
-                disabled
-                title={t("Coming soon (Google Calendar sync is on hold)")}
-                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/50"
-              >
-                📅 {t("Add to calendar")}
-              </button>
-            </div>
-          </div>
+          <ShutdownTimeCard dateStr={viewDateStr} initialShutdownTime={shutdownTime} />
 
           <div className="mt-6 flex gap-2">
             <button
@@ -102,28 +122,29 @@ export default async function DailyPlanningPage() {
 
         <div className="w-[340px] shrink-0 overflow-y-auto border-r border-border/60 px-5 py-6">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-muted px-3 py-1.5 text-sm font-medium">
-              📅 {t("Today")}
-            </span>
-            <button
-              type="button"
-              disabled
-              title={t("Coming soon")}
-              className="rounded-full border border-border/60 px-3 py-1.5 text-sm text-muted-foreground/70"
-            >
-              ☰ {t("Filter")}
-            </button>
+            <TodayDateDropdown
+              dateStr={viewDateStr}
+              todayDateStr={todayDateStr}
+              basePath="/today/planning"
+            />
+            <TodayFilterDropdown
+              contexts={contexts}
+              channelId={filterChannelId}
+              contextId={filterContextId}
+              priority={filterPriority}
+              basePath="/today/planning"
+            />
           </div>
 
           <p className="mt-6 text-xl font-bold">{dayName}</p>
           <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
           <div className="mt-2">
-            <AddTaskPopup dateStr={todayDateStr} contexts={contexts} />
+            <AddTaskPopup dateStr={viewDateStr} contexts={contexts} />
           </div>
 
           <div className="mt-2">
-            <TaskList dateStr={todayDateStr} tasks={sortedTasks} contexts={contexts} />
+            <TaskList dateStr={viewDateStr} tasks={sortedTasks} contexts={contexts} />
           </div>
         </div>
 

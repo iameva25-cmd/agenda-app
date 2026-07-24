@@ -270,6 +270,33 @@ export const weeklyObjectiveRelations = relations(weeklyObjective, ({ one }) => 
   }),
 }));
 
+// Satu baris per user per hari — dipakai buat Daily Planning (misal
+// shutdown time, jam target selesai kerja hari itu). Bisa ditambah field
+// lain ke depannya kalau ada setting harian baru.
+export const dailyPlan = pgTable(
+  "daily_plan",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    shutdownTime: text("shutdown_time"),
+  },
+  (table) => [
+    index("dailyPlan_userId_date_idx").on(table.userId, table.date),
+  ],
+);
+
+export const dailyPlanRelations = relations(dailyPlan, ({ one }) => ({
+  user: one(user, {
+    fields: [dailyPlan.userId],
+    references: [user.id],
+  }),
+}));
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),

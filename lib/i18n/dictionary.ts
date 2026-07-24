@@ -195,6 +195,7 @@ const dictionary: Record<string, string> = {
   "Go to Weekly Planning": "Buka Weekly Planning",
   None: "Tidak ada",
   "Loading...": "Memuat...",
+  "Saving...": "Menyimpan...",
   Urgent: "Mendesak",
   Priority: "Prioritas",
   Normal: "Normal",
