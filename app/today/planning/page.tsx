@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -98,24 +97,7 @@ export default async function DailyPlanningPage({
 
           <ShutdownTimeCard dateStr={viewDateStr} initialShutdownTime={shutdownTime} />
 
-          <div className="mt-6 flex gap-2">
-            <button
-              type="button"
-              disabled
-              title={t("No previous step")}
-              className="flex-1 rounded-lg border border-border/60 px-3 py-2 text-sm text-muted-foreground/40"
-            >
-              ←
-            </button>
-            <Link
-              href="/today/shutdown"
-              className="flex-1 rounded-lg bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              {t("Next")}
-            </Link>
-          </div>
-
-          <p className="mt-8 text-sm text-muted-foreground">
+          <p className="mt-6 text-sm text-muted-foreground">
             {t("What are the most high-impact things you could do today?")}
           </p>
         </div>
