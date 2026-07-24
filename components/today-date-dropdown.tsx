@@ -156,7 +156,7 @@ export function TodayDateDropdown({
                           isSameDay(day, selectedDateObj)
                             ? "bg-primary text-primary-foreground"
                             : isSameDay(day, todayObj)
-                              ? "font-semibold text-primary"
+                              ? "font-medium text-primary"
                               : "hover:bg-muted"
                         }`}
                       >

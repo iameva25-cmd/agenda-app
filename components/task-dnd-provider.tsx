@@ -175,7 +175,7 @@ export function TaskDndProvider({
         {activeTask && (
           <div className="w-[280px] rounded-2xl border border-border/60 bg-background p-4 opacity-90 shadow-lg">
             <p
-              className={`font-semibold ${activeTask.status === "done" ? "line-through" : ""}`}
+              className={`font-medium ${activeTask.status === "done" ? "line-through" : ""}`}
             >
               {activeTask.title}
             </p>

@@ -34,7 +34,7 @@ function NavLink({
       href={href}
       className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
         active
-          ? "bg-primary/10 font-semibold text-primary"
+          ? "bg-primary/10 font-medium text-primary"
           : "text-muted-foreground hover:bg-muted"
       }`}
     >
@@ -97,7 +97,7 @@ export function SidebarNav({
         </nav>
 
         <div className="mt-6">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+          <p className="px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
             {t("Day")}
           </p>
           <div className="mt-1 flex flex-col gap-1">
@@ -123,7 +123,7 @@ export function SidebarNav({
         </div>
 
         <div className="mt-6">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+          <p className="px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
             {t("Week")}
           </p>
           <div className="mt-1 flex flex-col gap-1">
@@ -143,7 +143,7 @@ export function SidebarNav({
         </div>
 
         <div className="mt-6">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+          <p className="px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
             {t("Month")}
           </p>
           <div className="mt-1 flex flex-col gap-1">
@@ -157,7 +157,7 @@ export function SidebarNav({
         </div>
 
         <div className="mt-6">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+          <p className="px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
             {t("Insights")}
           </p>
           <div className="mt-1 flex flex-col gap-1">

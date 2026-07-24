@@ -32,7 +32,7 @@ export function ShutdownTimeCard({
 
   return (
     <div className="mt-6 rounded-2xl border border-border/60 p-4 shadow-sm">
-      <p className="text-sm font-semibold">{t("Shutdown time")}</p>
+      <p className="text-sm font-medium">{t("Shutdown time")}</p>
       <p className="mt-1 text-xs text-muted-foreground">
         {t("What time would you like to wrap up work by?")}
       </p>

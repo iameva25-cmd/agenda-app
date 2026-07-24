@@ -22,7 +22,7 @@ export default async function Home() {
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             {t("Sign up")}
           </Link>
@@ -34,7 +34,7 @@ export default async function Home() {
           {t("All commitments. All contexts. One place.")}
         </span>
 
-        <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+        <h1 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
           {t("Plan your day with")}{" "}
           <span className="text-primary">{t("intent")}</span>, {t("not")}{" "}
           <span className="text-accent">{t("rush")}</span>
@@ -49,13 +49,13 @@ export default async function Home() {
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Link
             href="/register"
-            className="rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="rounded-full bg-primary px-8 py-3 text-base font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             {t("Start Planning Today")}
           </Link>
           <Link
             href="/login"
-            className="rounded-full border border-border px-8 py-3 text-base font-semibold transition-colors hover:bg-muted"
+            className="rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
           >
             {t("Already have an account? Log in")}
           </Link>

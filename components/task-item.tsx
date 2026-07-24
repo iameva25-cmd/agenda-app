@@ -134,8 +134,8 @@ export function TaskItem({
           <span
             className={
               isDone
-                ? "font-semibold text-muted-foreground line-through"
-                : "font-semibold"
+                ? "font-medium text-muted-foreground line-through"
+                : "font-medium"
             }
           >
             {task.title}

@@ -35,7 +35,7 @@ export function CalendarSidebar({
   return (
     <aside className="w-[450px] shrink-0 overflow-y-auto border-l border-border/60 px-5 py-10">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-muted-foreground">{t("Calendars")}</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">{t("Calendars")}</h2>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {shortDate}

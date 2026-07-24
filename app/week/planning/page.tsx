@@ -46,7 +46,7 @@ export default async function WeeklyPlanningPage() {
         <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-2">
           {/* Kolom kiri: label ritual + navigasi antar-step */}
           <div>
-            <h1 className="text-lg font-bold">{t("Weekly objectives")}</h1>
+            <h1 className="text-lg font-semibold">{t("Weekly objectives")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("Set your objectives for the week.")}
             </p>
@@ -73,7 +73,7 @@ export default async function WeeklyPlanningPage() {
 
           {/* Kolom kanan: daftar objective minggu ini */}
           <div>
-            <h2 className="text-lg font-bold">{t("This week")}</h2>
+            <h2 className="text-lg font-semibold">{t("This week")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("Your objectives for this week")}
             </p>

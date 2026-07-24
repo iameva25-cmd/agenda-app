@@ -41,7 +41,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-2xl border border-border p-8"
       >
-        <h1 className="text-center text-2xl font-semibold">{t("Create Account")}</h1>
+        <h1 className="text-center text-2xl font-medium">{t("Create Account")}</h1>
 
         {error && (
           <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
@@ -95,7 +95,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="w-full rounded-full bg-primary px-4 py-2 font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {loading ? t("Processing...") : t("Sign Up")}
         </button>

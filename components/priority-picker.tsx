@@ -97,7 +97,7 @@ export function PriorityPicker({
             style={{ top: position.top, left: position.left }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
+            <p className="px-1 text-[11px] font-medium uppercase text-muted-foreground/70">
               {t("Daily Priority")}
             </p>
             <ul className="mt-1 flex flex-col">

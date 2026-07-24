@@ -101,7 +101,7 @@ export default async function TodayFocusPage({
             />
           </div>
 
-          <p className="mt-6 text-xl font-bold">{dayName}</p>
+          <p className="mt-6 text-xl font-semibold">{dayName}</p>
           <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
           <div className="mt-2">

@@ -32,7 +32,7 @@ export default async function ChannelsSettingsPage() {
         {t("← Return to Home")}
       </Link>
 
-      <h1 className="mt-4 text-2xl font-bold">{t("Contexts & Channels")}</h1>
+      <h1 className="mt-4 text-2xl font-semibold">{t("Contexts & Channels")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {t(
           "Manage contexts (parent categories) and channels (sub-categories) to group your tasks.",

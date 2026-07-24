@@ -149,7 +149,7 @@ export function DatePickerPopover({
                         selectedDateObj && isSameDay(day, selectedDateObj)
                           ? "bg-primary text-primary-foreground"
                           : isSameDay(day, today)
-                            ? "font-semibold text-primary"
+                            ? "font-medium text-primary"
                             : "hover:bg-muted"
                       }`}
                     >

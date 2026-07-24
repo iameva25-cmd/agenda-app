@@ -42,14 +42,14 @@ export function DailyHighlightsPanel({
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Star className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-bold">{t("Daily Highlights")}</h1>
+        <h1 className="text-2xl font-semibold">{t("Daily Highlights")}</h1>
         <p className="text-sm text-muted-foreground">
           {t("Pick 1-3 tasks that matter most for you to get done today.")}
         </p>
         <button
           type="button"
           onClick={() => setStarted(true)}
-          className="mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          className="mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           {t("Start")} <span aria-hidden>→</span>
         </button>
@@ -59,7 +59,7 @@ export function DailyHighlightsPanel({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">{t("Daily Highlights")}</h1>
+      <h1 className="text-2xl font-semibold">{t("Daily Highlights")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{todayLabel}</p>
 
       <div className="mt-8 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
@@ -98,7 +98,7 @@ export function DailyHighlightsPanel({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-sm font-semibold text-muted-foreground">
+        <h2 className="text-sm font-medium text-muted-foreground">
           {t("All tasks today ({count})", { count: tasks.length })}
         </h2>
 

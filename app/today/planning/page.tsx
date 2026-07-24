@@ -90,7 +90,7 @@ export default async function DailyPlanningPage({
         <SidebarNav userName={session.user.name} current="today-planning" />
 
         <div className="w-[448px] shrink-0 overflow-y-auto border-r border-border/60 px-6 py-10">
-          <h1 className="text-xl font-bold">{t("What do you want to get done today?")}</h1>
+          <h1 className="text-xl font-semibold">{t("What do you want to get done today?")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("Add tasks you want to work on today.")}
           </p>
@@ -118,7 +118,7 @@ export default async function DailyPlanningPage({
             />
           </div>
 
-          <p className="mt-6 text-xl font-bold">{dayName}</p>
+          <p className="mt-6 text-xl font-semibold">{dayName}</p>
           <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
           <div className="mt-2">

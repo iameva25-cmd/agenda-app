@@ -55,7 +55,7 @@ export function MonthCalendar({
     <div className="flex h-full gap-6">
       <div className="flex h-full flex-1 flex-col rounded-2xl bg-black/4 p-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-semibold">
             {new Date(year, month, 1).toLocaleDateString(intlLocale, {
               month: "long",
               year: "numeric",
@@ -77,7 +77,7 @@ export function MonthCalendar({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs font-semibold text-muted-foreground">
+        <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground">
           {WEEKDAY_LABELS.map((d) => (
             <div key={d}>{t(d).toUpperCase()}</div>
           ))}
@@ -108,7 +108,7 @@ export function MonthCalendar({
                     <span
                       className={`flex h-6 w-6 items-center justify-center rounded-full ${
                         isToday
-                          ? "bg-primary font-semibold text-primary-foreground"
+                          ? "bg-primary font-medium text-primary-foreground"
                           : ""
                       }`}
                     >
@@ -128,7 +128,7 @@ export function MonthCalendar({
       </div>
 
       <div className="flex h-full w-[300px] shrink-0 flex-col overflow-y-auto rounded-2xl bg-black/7 p-6">
-        <p className="text-sm font-semibold">
+        <p className="text-sm font-medium">
           {selectedDateObj.toLocaleDateString(intlLocale, {
             weekday: "long",
             day: "numeric",

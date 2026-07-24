@@ -113,7 +113,7 @@ export function TodayFilterDropdown({
               className="w-full rounded border border-border/60 bg-transparent px-2 py-1 text-xs outline-none focus:border-primary"
             />
 
-            <p className="mt-2 px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
+            <p className="mt-2 px-1 text-[11px] font-medium uppercase text-muted-foreground/70">
               {t("Channel")}
             </p>
             <div className="mt-1 max-h-40 overflow-y-auto">
@@ -173,7 +173,7 @@ export function TodayFilterDropdown({
               ))}
             </div>
 
-            <p className="mt-3 px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
+            <p className="mt-3 px-1 text-[11px] font-medium uppercase text-muted-foreground/70">
               {t("Priority")}
             </p>
             <div className="mt-1">

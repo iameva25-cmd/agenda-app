@@ -240,7 +240,7 @@ export function AddTaskPopup({
                 />
 
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
                     TIP
                   </span>
                   <span>{t("Paste a URL")}</span>
@@ -303,7 +303,7 @@ export function AddTaskPopup({
               style={{ top: dropdownPos.top, left: dropdownPos.left }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="px-1 text-[11px] font-semibold uppercase text-muted-foreground/70">
+              <p className="px-1 text-[11px] font-medium uppercase text-muted-foreground/70">
                 {t("Someday")}
               </p>
               <ul className="mt-1 flex flex-col">
@@ -326,7 +326,7 @@ export function AddTaskPopup({
                     title={t("Not supported — tasks in this app always need a fixed date")}
                     className="flex w-full cursor-not-allowed items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-muted-foreground/40"
                   >
-                    <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-bold text-white">
+                    <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-semibold text-white">
                       S
                     </span>
                     {t("someday")}
@@ -339,7 +339,7 @@ export function AddTaskPopup({
                     title={t("Not supported — tasks in this app always need a fixed date")}
                     className="flex w-full cursor-not-allowed items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-muted-foreground/40"
                   >
-                    <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-bold text-white">
+                    <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-zinc-400 text-[7px] font-semibold text-white">
                       N
                     </span>
                     {t("never")}
@@ -347,7 +347,7 @@ export function AddTaskPopup({
                 </li>
               </ul>
 
-              <p className="mt-2 border-t border-border/50 px-1 pt-2 text-[11px] font-semibold uppercase text-muted-foreground/70">
+              <p className="mt-2 border-t border-border/50 px-1 pt-2 text-[11px] font-medium uppercase text-muted-foreground/70">
                 {t("Schedule exact start date")}
               </p>
               <div className="mt-1 flex items-center justify-between px-1">
@@ -398,7 +398,7 @@ export function AddTaskPopup({
                           isSameDay(day, selectedDateObj)
                             ? "bg-primary text-primary-foreground"
                             : isSameDay(day, today)
-                              ? "font-semibold text-primary"
+                              ? "font-medium text-primary"
                               : "hover:bg-muted"
                         }`}
                       >
@@ -448,7 +448,7 @@ export function AddTaskPopup({
                     type="button"
                     onClick={() => pickDuration(d.minutes, d.label)}
                     className={`flex w-full items-center justify-between rounded px-1.5 py-1 text-left text-xs hover:bg-muted ${
-                      durationMinutes === d.minutes ? "font-semibold text-primary" : ""
+                      durationMinutes === d.minutes ? "font-medium text-primary" : ""
                     }`}
                   >
                     {t(d.label)}

@@ -68,13 +68,13 @@ export default async function WeeklyReviewPage() {
         <div className="mt-10 flex gap-10 overflow-x-auto">
           {/* Kolom kiri: dashboard ringkasan, dari actualSeconds task minggu ini */}
           <div className="w-[260px] shrink-0">
-            <h1 className="text-lg font-bold">{t("What got done")}</h1>
+            <h1 className="text-lg font-semibold">{t("What got done")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("How you spent your time this week in")}{" "}
               <span className="underline">{t("total")}</span>
             </p>
 
-            <h3 className="mt-8 text-sm font-semibold">{t("Daily productivity")}</h3>
+            <h3 className="mt-8 text-sm font-medium">{t("Daily productivity")}</h3>
             <span className="text-[10px] text-muted-foreground">6 hr</span>
             <DailyProductivityChart data={productivityChartData} />
             <div className="flex gap-3 text-xs text-muted-foreground">
@@ -85,7 +85,7 @@ export default async function WeeklyReviewPage() {
               ))}
             </div>
 
-            <h3 className="mt-8 text-sm font-semibold">{t("How you spent your time")}</h3>
+            <h3 className="mt-8 text-sm font-medium">{t("How you spent your time")}</h3>
             <div className="mt-3">
               <TimeByChannelChart data={timeByChannel} />
             </div>

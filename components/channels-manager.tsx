@@ -96,7 +96,7 @@ function CreateContextForm({ onDone }: { onDone: () => void }) {
           </button>
           <button
             type="submit"
-            className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
+            className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground"
           >
             {t("Create")}
           </button>
@@ -178,7 +178,7 @@ function CreateChannelForm({
         </button>
         <button
           type="submit"
-          className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground"
+          className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground"
         >
           {t("Create")}
         </button>
@@ -212,7 +212,7 @@ function ChannelRow({ ch, contextColor }: { ch: Channel; contextColor: string })
             required
             className="flex-1 rounded border border-border/60 bg-transparent px-2 py-1 text-sm outline-none focus:border-primary"
           />
-          <button type="submit" className="text-sm font-semibold text-primary">
+          <button type="submit" className="text-sm font-medium text-primary">
             {t("Save")}
           </button>
           <button
@@ -304,7 +304,7 @@ function ContextHeader({ ctx }: { ctx: ContextWithChannels }) {
         <input type="hidden" name="color" value={color ?? ctx.color} />
         <ColorSwatchPicker value={color} onChange={setColor} />
         <div className="flex gap-2">
-          <button type="submit" className="text-sm font-semibold text-primary">
+          <button type="submit" className="text-sm font-medium text-primary">
             {t("Save")}
           </button>
           <button
@@ -322,7 +322,7 @@ function ContextHeader({ ctx }: { ctx: ContextWithChannels }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <p
-        className={`flex items-center gap-2 text-base font-bold ${
+        className={`flex items-center gap-2 text-base font-semibold ${
           CATEGORY_COLOR_CLASSES[ctx.color]?.text ?? "text-foreground"
         }`}
       >

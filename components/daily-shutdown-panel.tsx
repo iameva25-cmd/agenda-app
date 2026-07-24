@@ -37,7 +37,7 @@ export function DailyShutdownPanel({
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Moon className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-bold">{t("Daily Shutdown")}</h1>
+        <h1 className="text-2xl font-semibold">{t("Daily Shutdown")}</h1>
         <p className="text-sm text-muted-foreground">
           {t(
             "Wrap up your day with a summary of tasks done and not done today, along with the progress percentage.",
@@ -46,7 +46,7 @@ export function DailyShutdownPanel({
         <button
           type="button"
           onClick={() => setStarted(true)}
-          className="mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          className="mt-2 flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           {t("Start")} <span aria-hidden>→</span>
         </button>
@@ -56,7 +56,7 @@ export function DailyShutdownPanel({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">{t("Daily Shutdown")}</h1>
+      <h1 className="text-2xl font-semibold">{t("Daily Shutdown")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{todayLabel}</p>
 
       <div className="mt-8 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
@@ -66,7 +66,7 @@ export function DailyShutdownPanel({
               ? t("No tasks today")
               : t("{done} of {total} tasks done", { done: doneTasks.length, total: totalCount })}
           </p>
-          <p className="text-2xl font-bold text-primary">{percentage}%</p>
+          <p className="text-2xl font-semibold text-primary">{percentage}%</p>
         </div>
         <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-muted">
           <div
@@ -84,7 +84,7 @@ export function DailyShutdownPanel({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-sm font-semibold text-muted-foreground">
+        <h2 className="text-sm font-medium text-muted-foreground">
           {t("Done ({count})", { count: doneTasks.length })}
         </h2>
         {doneTasks.length === 0 ? (
@@ -101,7 +101,7 @@ export function DailyShutdownPanel({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-sm font-semibold text-muted-foreground">
+        <h2 className="text-sm font-medium text-muted-foreground">
           {t("Not done ({count})", { count: todoTasks.length })}
         </h2>
         {todoTasks.length === 0 ? (

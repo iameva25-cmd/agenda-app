@@ -64,7 +64,7 @@ export default async function AnalyticsPage({
 
       <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
         <div className="mx-auto max-w-md">
-          <h1 className="text-xl font-bold">{t("Analytics")}</h1>
+          <h1 className="text-xl font-semibold">{t("Analytics")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("Hours worked per category, per week.")}
           </p>
@@ -85,7 +85,7 @@ export default async function AnalyticsPage({
             </Link>
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold">{t("Hours worked per day")}</h3>
+          <h3 className="mt-8 text-sm font-medium">{t("Hours worked per day")}</h3>
           <span className="text-[10px] text-muted-foreground">6 hr</span>
           <DailyProductivityChart data={productivityChartData} />
           <div className="flex gap-3 text-xs text-muted-foreground">
@@ -96,7 +96,7 @@ export default async function AnalyticsPage({
             ))}
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold">{t("Hours worked per category")}</h3>
+          <h3 className="mt-8 text-sm font-medium">{t("Hours worked per category")}</h3>
           <div className="mt-3">
             <TimeByChannelChart data={timeByChannel} />
           </div>

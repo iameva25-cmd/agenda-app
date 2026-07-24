@@ -78,7 +78,7 @@ export default async function HomePage({
         <SidebarNav userName={session.user.name} current="home" />
 
         <main className="flex-1 overflow-y-auto px-8 py-10 sm:px-10">
-          <h1 className="text-xl font-bold">{t("Home")}</h1>
+          <h1 className="text-xl font-semibold">{t("Home")}</h1>
 
           <div data-home-day-row className="mt-8 flex gap-4 overflow-x-auto pb-2">
             {dateStrings.map((dateStr, i) => (

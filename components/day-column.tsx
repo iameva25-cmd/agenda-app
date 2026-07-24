@@ -38,7 +38,7 @@ export async function DayColumn({
         isToday ? "border-primary/40 bg-primary/5" : "border-border/60 bg-transparent"
       }`}
     >
-      <p className="text-xl font-bold">{dayName}</p>
+      <p className="text-xl font-semibold">{dayName}</p>
       <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
       <AddTaskPopup dateStr={dateStr} contexts={contexts} />
