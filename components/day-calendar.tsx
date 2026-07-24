@@ -153,17 +153,23 @@ export function DayCalendar({
 
   // Grid sekarang 24 jam penuh — begitu mount, scroll otomatis ke sekitar
   // jam sekarang (dikurangi NOW_SCROLL_LEAD_MINUTES) supaya user tidak harus
-  // scroll manual dari 00:00 tiap buka Home.
+  // scroll manual dari 00:00 tiap buka Home. Posisi anchor SENGAJA dihitung
+  // di useEffect (bukan initializer useState) supaya tidak ikut dievaluasi
+  // saat SSR — kalau ikut SSR, jam server vs jam browser bisa beda (beda
+  // zona waktu/detik), hasilnya beda, dan React akan lempar hydration
+  // mismatch karena style top di server vs client tidak sama persis.
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
-  const [nowAnchorMinutes] = useState(() => {
+
+  useEffect(() => {
     const nowDate = new Date();
     const nowMinutes = nowDate.getHours() * 60 + nowDate.getMinutes();
     const anchor = Math.max(START_HOUR * 60, nowMinutes - NOW_SCROLL_LEAD_MINUTES);
-    return Math.min(anchor, END_HOUR * 60 - SLOT_MINUTES);
-  });
-
-  useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ block: "start" });
+    const anchorMinutes = Math.min(anchor, END_HOUR * 60 - SLOT_MINUTES);
+    if (scrollAnchorRef.current) {
+      scrollAnchorRef.current.style.top = `${((anchorMinutes - gridStartMinutes) / SLOT_MINUTES) * SLOT_HEIGHT}px`;
+      scrollAnchorRef.current.scrollIntoView({ block: "start" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -172,7 +178,7 @@ export function DayCalendar({
         <div
           ref={scrollAnchorRef}
           aria-hidden
-          style={{ position: "absolute", top: ((nowAnchorMinutes - gridStartMinutes) / SLOT_MINUTES) * SLOT_HEIGHT }}
+          style={{ position: "absolute", top: 0 }}
         />
         {slots.map((slotTime) => {
           const isHour = slotTime.endsWith(":00");
