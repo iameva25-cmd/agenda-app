@@ -61,9 +61,17 @@ function formatRelativeTime(date: Date, locale: Locale) {
 
 // Textarea auto-grow: tinggi kotak ikut nambah sesuai panjang teks, dipakai
 // untuk Notes & Comment supaya tidak perlu scroll di dalam kotak kecil.
-function autoGrow(el: HTMLTextAreaElement) {
+// maxHeight opsional (dipakai Notes, dibatasi 80% tinggi layar) — kalau isinya
+// lebih panjang dari itu, textarea berhenti tumbuh dan muncul scrollbar sendiri.
+function autoGrow(el: HTMLTextAreaElement, maxHeight?: number) {
   el.style.height = "auto";
-  el.style.height = `${el.scrollHeight}px`;
+  if (maxHeight && el.scrollHeight > maxHeight) {
+    el.style.height = `${maxHeight}px`;
+    el.style.overflowY = "auto";
+  } else {
+    el.style.height = `${el.scrollHeight}px`;
+    el.style.overflowY = "hidden";
+  }
 }
 
 export function TaskDetailModal({
@@ -487,14 +495,14 @@ export function TaskDetailModal({
           </form>
         </div>
 
-        {/* Notes — auto-grow */}
+        {/* Notes — auto-grow, dibatasi maksimal 80% tinggi layar lalu scroll */}
         <textarea
           key={task.description}
           defaultValue={task.description ?? ""}
           onBlur={(e) => saveField("description", e.target.value.trim())}
-          onInput={(e) => autoGrow(e.currentTarget)}
+          onInput={(e) => autoGrow(e.currentTarget, window.innerHeight * 0.8)}
           ref={(el) => {
-            if (el) autoGrow(el);
+            if (el) autoGrow(el, window.innerHeight * 0.8);
           }}
           placeholder={t("Notes...")}
           rows={4}
