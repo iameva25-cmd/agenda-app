@@ -217,6 +217,7 @@ const dictionary: Record<string, string> = {
   "Custom days": "Hari tertentu",
   Apply: "Terapkan",
   "Are you sure you want to delete this task?": "Yakin mau menghapus task ini?",
+  "Are you sure you want to delete this objective?": "Yakin mau menghapus objective ini?",
   "Clear date": "Hapus tanggal",
   "More menu — coming soon": "Menu lainnya — segera hadir",
   "Expand — coming soon": "Perbesar — segera hadir",
